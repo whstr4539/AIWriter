@@ -6,6 +6,9 @@ dist/
 dist-release/
 dist-electron/
 
+# Claude
+.claude/
+
 # IDE
 .vscode/
 .idea/
