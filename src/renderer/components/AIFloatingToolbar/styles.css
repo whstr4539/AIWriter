@@ -1,0 +1,180 @@
+/**
+ * AI浮动工具栏样式
+ */
+
+/* 浮动工具栏容器 */
+.ai-floating-toolbar {
+  position: absolute;
+  z-index: 1000;
+  transform: translateX(-50%);
+  animation: toolbarFadeIn 0.2s ease;
+}
+
+@keyframes toolbarFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 工具栏内容 */
+.ai-toolbar-content {
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+}
+
+/* 工具栏按钮 */
+.ai-toolbar-btn {
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  border: none;
+  font-size: 12px;
+  padding: 0 10px;
+  height: 28px;
+  line-height: 28px;
+}
+
+.ai-toolbar-btn:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+}
+
+.ai-toolbar-btn:active {
+  background: linear-gradient(135deg, #096dd9 0%, #0050b3 100%);
+}
+
+/* 更多按钮 */
+.ai-toolbar-more-btn {
+  color: #595959;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-toolbar-more-btn:hover {
+  color: #1890ff;
+  background: #e6f7ff;
+}
+
+/* 分隔线 */
+.ai-toolbar-divider {
+  margin: 0 4px;
+  height: 20px;
+}
+
+/* 箭头 */
+.ai-toolbar-arrow {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #fff;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+}
+
+.ai-toolbar-arrow::before {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: -6px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #e8e8e8;
+  z-index: -1;
+}
+
+/* 更多菜单 */
+.ai-more-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+}
+
+.ai-more-menu .ant-btn {
+  text-align: left;
+  padding: 8px 12px;
+  height: auto;
+}
+
+.ai-more-menu .ant-btn:hover {
+  background: #e6f7ff;
+}
+
+/* 深色主题适配 */
+.dark-theme .ai-toolbar-content {
+  background: #2c2c2c;
+  border-color: #434343;
+}
+
+.dark-theme .ai-toolbar-btn {
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+}
+
+.dark-theme .ai-toolbar-btn:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+}
+
+.dark-theme .ai-toolbar-more-btn {
+  color: #d9d9d9;
+}
+
+.dark-theme .ai-toolbar-more-btn:hover {
+  color: #1890ff;
+  background: #16232e;
+}
+
+.dark-theme .ai-toolbar-arrow {
+  border-top-color: #2c2c2c;
+}
+
+.dark-theme .ai-toolbar-arrow::before {
+  border-top-color: #434343;
+}
+
+.dark-theme .ai-more-menu .ant-btn {
+  color: #d9d9d9;
+}
+
+.dark-theme .ai-more-menu .ant-btn:hover {
+  background: #16232e;
+  color: #1890ff;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .ai-toolbar-content {
+    padding: 4px 6px;
+  }
+
+  .ai-toolbar-btn {
+    font-size: 11px;
+    padding: 0 6px;
+    height: 24px;
+    line-height: 24px;
+  }
+
+  .ai-toolbar-btn .anticon {
+    font-size: 12px;
+  }
+
+  .ai-toolbar-more-btn {
+    width: 24px;
+    height: 24px;
+  }
+}

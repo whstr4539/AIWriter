@@ -1,0 +1,123 @@
+{
+  "appId": "com.aiwriter.app",
+  "productName": "AI Writer",
+  "copyright": "Copyright © 2024 AI Writer",
+  "directories": {
+    "output": "dist-release",
+    "buildResources": "build"
+  },
+  "files": [
+    "dist/**/*",
+    "node_modules/**/*",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "./resources",
+      "to": "resources",
+      "filter": ["**/*"]
+    }
+  ],
+  "asar": true,
+  "asarUnpack": [
+    "node_modules/archiver/**/*",
+    "node_modules/extract-zip/**/*"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icon.ico",
+    "legalTrademarks": "AI Writer Team",
+    "verifyUpdateCodeSignature": false,
+    "signAndEditExecutable": false,
+    "requestedExecutionLevel": "asInvoker"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "perMachine": false,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "AI Writer",
+    "installerIcon": "build/icon.ico",
+    "uninstallerIcon": "build/icon.ico",
+    "installerHeaderIcon": "build/icon.ico",
+    "include": "build/installer.nsh",
+    "license": "LICENSE.txt",
+    "artifactName": "AI-Writer-Setup-${version}.${ext}"
+  },
+  "portable": {
+    "artifactName": "AI-Writer-Portable-${version}.${ext}"
+  },
+  "mac": {
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "zip",
+        "arch": ["x64", "arm64"]
+      }
+    ],
+    "icon": "build/icon.icns",
+    "category": "public.app-category.productivity",
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "entitlements": "build/entitlements.mac.plist",
+    "entitlementsInherit": "build/entitlements.mac.plist"
+  },
+  "dmg": {
+    "sign": false,
+    "contents": [
+      {
+        "x": 130,
+        "y": 220
+      },
+      {
+        "x": 410,
+        "y": 220,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ],
+    "artifactName": "AI-Writer-${version}-${arch}.${ext}"
+  },
+  "linux": {
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64"]
+      },
+      {
+        "target": "deb",
+        "arch": ["x64"]
+      },
+      {
+        "target": "rpm",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icons",
+    "category": "Office",
+    "maintainer": "AI Writer Team",
+    "vendor": "AI Writer Team",
+    "synopsis": "AI-powered novel writing tool",
+    "description": "A powerful AI-assisted writing application for novelists and authors",
+    "artifactName": "AI-Writer-${version}-${arch}.${ext}"
+  },
+  "publish": {
+    "provider": "github",
+    "owner": "aiwriter",
+    "repo": "ai-writer-app",
+    "releaseType": "release"
+  }
+}

@@ -1,0 +1,208 @@
+/**
+ * 应用级样式
+ */
+
+/* 应用容器 */
+.app-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 页面过渡动画 */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.page-transition-exit {
+  opacity: 1;
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+/* 全局工具类 */
+.full-height {
+  height: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+/* 拖拽时的样式 */
+.dragging {
+  opacity: 0.5;
+  cursor: grabbing !important;
+}
+
+/* 禁用选择 */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 文本可选 */
+.selectable {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* 滚动容器 */
+.scroll-container {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-container-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-container-y {
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 隐藏滚动条但保留功能 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* 玻璃态效果 */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-theme='dark'] .glass {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 卡片悬停效果 */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 按钮涟漪效果 */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.btn-ripple:active::after {
+  width: 200%;
+  height: 200%;
+}
+
+/* 加载遮罩 */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+/* 错误边界样式 */
+.error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+}
+
+.error-boundary-icon {
+  font-size: 64px;
+  color: var(--color-error);
+  margin-bottom: 16px;
+}
+
+.error-boundary-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.error-boundary-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  max-width: 400px;
+}
+
+/* 响应式工具类 */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .show-mobile-only {
+    display: none !important;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

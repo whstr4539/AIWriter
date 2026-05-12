@@ -1,0 +1,176 @@
+/**
+ * 导入对话框样式
+ */
+
+.import-step-1 {
+  padding: 8px 0;
+}
+
+.import-uploader {
+  padding: 24px;
+}
+
+.import-uploader .ant-upload-drag-icon {
+  margin-bottom: 16px;
+}
+
+.import-uploader .ant-upload-drag-icon .anticon {
+  font-size: 48px;
+  color: #1890ff;
+}
+
+.import-uploader .ant-upload-text {
+  font-size: 16px;
+  color: #262626;
+  margin-bottom: 8px;
+}
+
+.import-uploader .ant-upload-hint {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.file-list-summary {
+  text-align: center;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.import-step-2 {
+  padding: 8px 0;
+}
+
+.preview-summary {
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.preview-list {
+  max-height: 350px;
+  overflow: auto;
+}
+
+.preview-list .ant-list-item {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.preview-list .ant-list-item:last-child {
+  border-bottom: none;
+}
+
+.preview-list .ant-list-item-meta-avatar {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.preview-list .ant-list-item-meta-title {
+  margin-bottom: 4px;
+}
+
+.import-progress {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.import-progress .ant-progress {
+  margin-bottom: 16px;
+}
+
+.import-result {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.import-result .anticon {
+  margin-bottom: 16px;
+}
+
+.result-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.stat-card {
+  width: 120px;
+  text-align: center;
+}
+
+.stat-card.success {
+  border-color: #52c41a;
+}
+
+.stat-card.error {
+  border-color: #ff4d4f;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-card.success .stat-value {
+  color: #52c41a;
+}
+
+.stat-card.error .stat-value {
+  color: #ff4d4f;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+.import-confirm {
+  padding: 16px;
+}
+
+.confirm-info {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.steps-content {
+  min-height: 300px;
+}
+
+/* 响应式调整 */
+@media (max-width: 576px) {
+  .import-uploader {
+    padding: 16px;
+  }
+
+  .import-uploader .ant-upload-drag-icon .anticon {
+    font-size: 36px;
+  }
+
+  .result-stats {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .stat-card {
+    width: 100%;
+    max-width: 200px;
+  }
+}

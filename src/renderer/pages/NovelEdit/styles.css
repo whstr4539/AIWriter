@@ -1,0 +1,193 @@
+/**
+ * 作品编辑页面样式
+ */
+
+.novel-edit-page {
+  padding: 0;
+}
+
+.novel-edit-page.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-header h3 {
+  margin: 0;
+}
+
+.empty-container {
+  padding: 64px 0;
+}
+
+/* 信息卡片 */
+.info-card {
+  margin-bottom: 24px;
+}
+
+/* 章节管理卡片 */
+.chapters-card {
+  margin-bottom: 24px;
+}
+
+.chapters-empty {
+  padding: 32px 0;
+}
+
+.chapter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chapter-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chapter-item:hover {
+  background: #e6f7ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chapter-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chapter-order {
+  font-weight: 500;
+  color: #1890ff;
+  min-width: 60px;
+}
+
+.chapter-title {
+  font-weight: 500;
+}
+
+.chapter-meta {
+  display: flex;
+  gap: 16px;
+}
+
+/* 封面卡片 */
+.cover-card {
+  margin-bottom: 24px;
+}
+
+.cover-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+}
+
+.cover-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.cover-preview img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cover-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cover-uploader {
+  width: 100%;
+}
+
+.cover-uploader .ant-upload {
+  width: 100%;
+  height: 200px;
+}
+
+.cover-hint {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+/* 统计卡片 */
+.stats-card {
+  margin-bottom: 24px;
+}
+
+.stats-card .ant-statistic-title {
+  font-size: 12px;
+}
+
+.stats-card .ant-statistic-content {
+  font-size: 18px;
+}
+
+/* 状态卡片 */
+.status-card {
+  margin-bottom: 24px;
+}
+
+.status-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.novel-id {
+  text-align: center;
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .chapter-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .chapter-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 576px) {
+  .chapter-info {
+    flex-wrap: wrap;
+  }
+
+  .chapter-order {
+    min-width: auto;
+  }
+}

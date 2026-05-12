@@ -1,0 +1,198 @@
+/**
+ * 骨架屏样式
+ */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    var(--bg-tertiary) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* 文字骨架 */
+.skeleton-text-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-text {
+  height: 1em;
+  border-radius: 2px;
+}
+
+/* 标题骨架 */
+.skeleton-title {
+  height: 1.5em;
+  width: 60%;
+  border-radius: 4px;
+}
+
+/* 头像骨架 */
+.skeleton-avatar {
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* 卡片骨架 */
+.skeleton-card {
+  border-radius: 8px;
+}
+
+/* 列表骨架 */
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.skeleton-list-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.skeleton-list-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 编辑器骨架 */
+.skeleton-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--editor-bg);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.skeleton-editor-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  gap: 8px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.skeleton-toolbar-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.skeleton-editor-content {
+  flex: 1;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 侧边栏骨架 */
+.skeleton-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-secondary);
+}
+
+.skeleton-sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.skeleton-sidebar-content {
+  flex: 1;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.skeleton-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.skeleton-sidebar-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.skeleton-sidebar-item .skeleton-text-container {
+  flex: 1;
+}
+
+/* 页面级骨架屏 */
+.skeleton-page {
+  display: flex;
+  height: 100%;
+}
+
+.skeleton-page-content {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.skeleton-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.skeleton-page-header .skeleton-title {
+  width: 200px;
+}
+
+.skeleton-page-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.skeleton-page-actions .skeleton {
+  width: 100px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.skeleton-page-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: var(--bg-secondary);
+  }
+}

@@ -1,0 +1,201 @@
+.home-page {
+  padding: 8px;
+}
+
+.welcome-section {
+  margin-bottom: 32px;
+}
+
+.welcome-section h1 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.welcome-section p {
+  margin: 0;
+  font-size: 16px;
+  color: #8c8c8c;
+}
+
+/* 今日统计卡片 */
+.today-stats-row {
+  margin-top: 24px;
+}
+
+.today-stat-card {
+  padding: 8px;
+  transition: all 0.3s ease;
+  height: 180px;
+  display: flex;
+  align-items: center;
+}
+
+.today-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.today-stat-card .ant-card-body {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  padding: 16px 24px;
+}
+
+.stat-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon-wrapper .anticon {
+  font-size: 36px;
+  color: white;
+}
+
+.stat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.stat-value-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #262626;
+  line-height: 1.2;
+}
+
+.stat-unit {
+  font-size: 16px;
+  color: #8c8c8c;
+  font-weight: 400;
+}
+
+.stat-hint {
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* 快捷操作卡片 */
+.action-card {
+  transition: all 0.3s ease;
+}
+
+.action-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.action-card .ant-btn {
+  height: 48px;
+  font-size: 15px;
+}
+
+/* 作品概况卡片 */
+.novels-overview-card {
+  transition: all 0.3s ease;
+}
+
+.novels-overview-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.novels-overview-card .ant-statistic-title {
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+.novels-overview-card .ant-statistic-content {
+  font-size: 24px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.novels-overview-card .ant-statistic-content-prefix {
+  margin-right: 8px;
+  color: #1890ff;
+}
+
+/* 最近作品列表 */
+.recent-novels .novel-item {
+  transition: all 0.2s ease;
+}
+
+.recent-novels .novel-item:hover {
+  background: #e6f7ff !important;
+  transform: translateX(4px);
+}
+
+/* 深色主题适配 */
+.dark-theme .welcome-section h1 {
+  color: #e0e0e0;
+}
+
+.dark-theme .welcome-section p {
+  color: #a0a0a0;
+}
+
+.dark-theme .stat-value {
+  color: #e0e0e0;
+}
+
+.dark-theme .stat-unit {
+  color: #a0a0a0;
+}
+
+.dark-theme .recent-novels .novel-item {
+  background: #2a2a2a !important;
+}
+
+.dark-theme .recent-novels .novel-item:hover {
+  background: #1f1f1f !important;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .today-stat-card {
+    height: auto;
+  }
+  
+  .today-stat-card .ant-card-body {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  
+  .stat-icon-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .stat-icon-wrapper .anticon {
+    font-size: 28px;
+  }
+  
+  .stat-value {
+    font-size: 28px;
+  }
+  
+  .welcome-section h1 {
+    font-size: 24px;
+  }
+}

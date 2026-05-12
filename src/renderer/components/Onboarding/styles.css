@@ -1,0 +1,300 @@
+/**
+ * 用户引导样式
+ */
+
+/* 欢迎弹窗 */
+.onboarding-welcome-modal .ant-modal-content {
+  background: var(--bg-elevated);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.onboarding-welcome-modal .ant-modal-body {
+  padding: 0;
+}
+
+.onboarding-welcome {
+  padding: 40px;
+  text-align: center;
+}
+
+.welcome-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-active) 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: white;
+  box-shadow: var(--shadow-lg);
+  animation: scaleIn 0.5s ease;
+}
+
+.welcome-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.welcome-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.welcome-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  transition: all var(--transition-fast);
+}
+
+.feature-item:hover {
+  background: var(--sidebar-hover);
+  transform: translateY(-2px);
+}
+
+.feature-icon {
+  font-size: 24px;
+  color: var(--color-primary);
+}
+
+.feature-item span {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.welcome-actions .ant-btn-primary {
+  height: 44px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+/* 功能提示气泡 */
+.feature-tooltip-content {
+  min-width: 200px;
+  max-width: 280px;
+}
+
+.feature-tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.feature-tooltip-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.feature-tooltip-close {
+  cursor: pointer;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  transition: color var(--transition-fast);
+}
+
+.feature-tooltip-close:hover {
+  color: var(--text-primary);
+}
+
+.feature-tooltip-body {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.feature-tooltip-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 快捷键提示 */
+.shortcut-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.shortcut-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--text-primary);
+  box-shadow: 0 1px 0 var(--border-primary);
+}
+
+.shortcut-desc {
+  color: var(--text-secondary);
+}
+
+/* 空状态引导 */
+.empty-guide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.empty-guide-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: var(--text-tertiary);
+}
+
+.empty-guide-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.empty-guide-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.empty-guide-action {
+  display: flex;
+  gap: 12px;
+}
+
+/* 步骤引导覆盖样式 */
+.ant-tour {
+  --antd-arrow-background-color: var(--bg-elevated);
+}
+
+.ant-tour-content {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-secondary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+}
+
+.ant-tour-title {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.ant-tour-description {
+  color: var(--text-secondary);
+}
+
+.ant-tour-close {
+  color: var(--text-tertiary);
+}
+
+.ant-tour-close:hover {
+  color: var(--text-primary);
+}
+
+.ant-tour-footer {
+  border-top-color: var(--border-secondary);
+}
+
+.ant-tour-indicators > span {
+  background: var(--border-primary);
+}
+
+.ant-tour-indicators > span.ant-tour-indicator-active {
+  background: var(--color-primary);
+}
+
+.ant-tour .ant-btn-default {
+  background: var(--bg-secondary);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.ant-tour .ant-btn-default:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* 动画 */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .onboarding-welcome {
+    padding: 24px;
+  }
+
+  .welcome-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+  }
+
+  .welcome-title {
+    font-size: 20px;
+  }
+
+  .welcome-features {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-item {
+    padding: 12px;
+  }
+}

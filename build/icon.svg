@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="#1890ff"/>
+
+  <!-- Pen/Writing Icon -->
+  <g fill="none" stroke="white" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Pen body -->
+    <path d="M160 352 L320 192 L384 256 L224 416 Z"/>
+    <!-- Pen tip -->
+    <path d="M160 352 L128 384 L160 416 L192 384 Z" fill="white"/>
+    <!-- Pen cap/detail -->
+    <path d="M320 192 L352 160 L416 224 L384 256"/>
+    <!-- Sparkle/AI effect -->
+    <path d="M280 120 L280 160 M280 200 L280 240 M240 160 L280 160 M320 160 L360 160" stroke-width="16"/>
+    <circle cx="280" cy="160" r="8" fill="white" stroke="none"/>
+  </g>
+
+  <!-- Text lines representing writing -->
+  <g fill="white">
+    <rect x="80" y="440" width="200" height="12" rx="6"/>
+    <rect x="80" y="468" width="150" height="12" rx="6"/>
+  </g>
+</svg>

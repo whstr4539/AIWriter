@@ -1,0 +1,44 @@
+.prompts-page {
+  padding: 16px;
+}
+
+.prompts-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.prompts-tabs {
+  min-height: calc(100vh - 200px);
+}
+
+.prompts-tabs .ant-tabs-content-holder {
+  padding: 0 24px;
+}
+
+.prompt-editor {
+  max-width: 900px;
+}
+
+.prompt-field {
+  width: 100%;
+}
+
+.prompt-field .ant-typography-secondary {
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 768px) {
+  .prompts-page .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .prompts-tabs {
+    flex-direction: column !important;
+  }
+  .prompts-tabs .ant-tabs-tabpane {
+    padding-left: 0 !important;
+  }
+}

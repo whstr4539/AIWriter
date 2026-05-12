@@ -1,0 +1,271 @@
+/**
+ * AI生成章节对话框样式
+ */
+
+/* 对话框 */
+.ai-generate-chapter-dialog .ant-modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ai-generate-chapter-dialog .ant-modal-header {
+  background: linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%);
+  border-bottom: 1px solid #e8e8e8;
+  padding: 16px 24px;
+}
+
+.ai-generate-chapter-dialog .ant-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.novel-title-tag {
+  font-size: 13px;
+  margin-left: 8px;
+}
+
+/* 标签页 */
+.generate-chapter-tabs {
+  margin-top: 16px;
+}
+
+.generate-chapter-tabs .ant-tabs-nav {
+  margin-bottom: 16px;
+  padding: 0 24px;
+}
+
+.generate-chapter-tabs .ant-tabs-content {
+  padding: 0 24px;
+}
+
+.generate-chapter-tabs .ant-tabs-tab {
+  padding: 12px 16px;
+}
+
+.generate-chapter-tabs .ant-tabs-tab .anticon {
+  margin-right: 8px;
+}
+
+/* 表单样式 */
+.chapter-generate-form {
+  max-width: 600px;
+}
+
+.outline-input {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* 写作风格选项 */
+.style-radio-group {
+  width: 100%;
+}
+
+.style-radio {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.style-radio:hover {
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.style-radio.ant-radio-wrapper-checked {
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.style-option {
+  display: flex;
+  flex-direction: column;
+  margin-left: 8px;
+}
+
+.style-description {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* 预览内容 */
+.preview-content {
+  min-height: 400px;
+}
+
+.generation-progress {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: 8px;
+}
+
+.progress-info {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* 生成的章节卡片 */
+.generated-chapter-card {
+  margin-bottom: 16px;
+  border: 1px solid #e8e8e8;
+}
+
+.generated-chapter-card .ant-card-head {
+  background: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.generated-chapter-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #262626;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.empty-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.generation-hint {
+  font-size: 12px;
+}
+
+/* Token使用信息 */
+.token-usage-info {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.token-usage-info .ant-typography {
+  font-size: 12px;
+}
+
+/* 错误提示 */
+.error-alert {
+  margin-bottom: 16px;
+}
+
+/* 底部操作按钮 */
+.dialog-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid #e8e8e8;
+  margin-top: 24px;
+}
+
+/* 深色主题适配 */
+.dark-theme .ai-generate-chapter-dialog .ant-modal-content {
+  background: #1f1f1f;
+}
+
+.dark-theme .ai-generate-chapter-dialog .ant-modal-header {
+  background: linear-gradient(135deg, #16232e 0%, #1f1f1f 100%);
+  border-bottom-color: #434343;
+}
+
+.dark-theme .ai-generate-chapter-dialog .ant-modal-title {
+  color: #fff;
+}
+
+.dark-theme .generate-chapter-tabs .ant-tabs-nav {
+  border-bottom-color: #434343;
+}
+
+.dark-theme .generate-chapter-tabs .ant-tabs-tab {
+  color: #bfbfbf;
+}
+
+.dark-theme .generate-chapter-tabs .ant-tabs-tab-active {
+  color: #1890ff;
+}
+
+.dark-theme .chapter-generate-form .ant-form-item-label > label {
+  color: #d9d9d9;
+}
+
+.dark-theme .chapter-generate-form .ant-input,
+.dark-theme .chapter-generate-form .ant-select-selector,
+.dark-theme .chapter-generate-form .ant-input-textarea {
+  background: #2c2c2c;
+  border-color: #434343;
+  color: #d9d9d9;
+}
+
+.dark-theme .style-radio {
+  border-color: #434343;
+  background: #2c2c2c;
+}
+
+.dark-theme .style-radio:hover {
+  border-color: #1890ff;
+  background: #16232e;
+}
+
+.dark-theme .style-radio.ant-radio-wrapper-checked {
+  border-color: #1890ff;
+  background: #16232e;
+}
+
+.dark-theme .generation-progress {
+  background: #162312;
+  border-color: #274916;
+}
+
+.dark-theme .generated-chapter-card {
+  background: #2c2c2c;
+  border-color: #434343;
+}
+
+.dark-theme .generated-chapter-card .ant-card-head {
+  background: #1f1f1f;
+  border-bottom-color: #434343;
+}
+
+.dark-theme .generated-chapter-text {
+  color: #d9d9d9;
+}
+
+.dark-theme .dialog-footer-actions {
+  border-top-color: #434343;
+}
+
+/* 滚动条样式 */
+.generated-chapter-text::-webkit-scrollbar {
+  width: 6px;
+}
+
+.generated-chapter-text::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.generated-chapter-text::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 3px;
+}
+
+.generated-chapter-text::-webkit-scrollbar-thumb:hover {
+  background: #bfbfbf;
+}
+
+.dark-theme .generated-chapter-text::-webkit-scrollbar-thumb {
+  background: #434343;
+}
+
+.dark-theme .generated-chapter-text::-webkit-scrollbar-thumb:hover {
+  background: #595959;
+}

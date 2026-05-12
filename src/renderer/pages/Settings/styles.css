@@ -1,0 +1,79 @@
+.settings-page {
+  padding: 16px;
+}
+
+.settings-page.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-tabs {
+  margin-top: 8px;
+}
+
+.settings-tabs .ant-tabs-content {
+  padding: 16px 0;
+}
+
+.settings-form .ant-form-item {
+  margin-bottom: 20px;
+}
+
+.settings-form .ant-form-item:last-child {
+  margin-bottom: 0;
+}
+
+/* AI 设置标签页 */
+.ai-settings-tab {
+  max-width: 800px;
+}
+
+.ai-settings-tab .ant-slider {
+  margin: 8px 0;
+}
+
+/* 通用设置标签页 */
+.general-settings-tab {
+  max-width: 800px;
+}
+
+/* 编辑器设置标签页 */
+.editor-settings-tab {
+  max-width: 800px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 8px;
+  }
+
+  .settings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .settings-form .ant-input,
+  .settings-form .ant-input-password,
+  .settings-form .ant-select {
+    width: 100% !important;
+  }
+}
+
+/* 深色模式适配 */
+.dark .settings-page {
+  background-color: #141414;
+}
+
+.dark .settings-section h3 {
+  color: #e6e6e6;
+}

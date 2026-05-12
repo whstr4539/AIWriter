@@ -1,0 +1,49 @@
+.ai-outline-dialog .outline-type-tag {
+  margin-left: 8px;
+}
+
+.ai-outline-dialog .reference-card {
+  margin-bottom: 16px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.ai-outline-dialog .generated-outline-text {
+  white-space: pre-wrap;
+  min-height: 120px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 12px;
+  background: var(--bg-elevated, #fafafa);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary, #e8e8e8);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.ai-outline-dialog .generation-progress {
+  margin-bottom: 16px;
+}
+
+.ai-outline-dialog .progress-info {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.ai-outline-dialog .dialog-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-secondary, #f0f0f0);
+  margin-top: 16px;
+}
+
+.ai-outline-dialog .empty-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--text-tertiary, #bfbfbf);
+}
