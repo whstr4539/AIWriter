@@ -18,18 +18,6 @@ import type {
   AIModelInfo,
   ImportPreview,
 } from '../../types/novel';
-import { mockElectronAPI, initMockData } from './mockElectron';
-
-// 检查是否在 Electron 环境中
-const isElectron = typeof window !== 'undefined' && window.electron !== undefined;
-
-// 如果不是 Electron 环境，使用 mock API
-if (!isElectron) {
-  console.log('不在 Electron 环境中，使用 Mock API');
-  initMockData();
-  (window as any).electron = mockElectronAPI;
-}
-
 const ipcRenderer = window.electron;
 
 // IPC 通道名称（必须与主进程定义的一致）

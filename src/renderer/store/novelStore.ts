@@ -392,24 +392,13 @@ export const useNovelStore = create<NovelStore>()(
 
         updateChapterContent: async (content: string) => {
           const { currentNovel, currentChapter } = get();
-          if (!currentNovel || !currentChapter) {
-            return null;
-          }
+          if (!currentNovel || !currentChapter) return null;
+          if (!content && currentChapter.content) return null;
 
           try {
-            const result = await api.chapter.update(currentNovel.id, currentChapter.id, {
-              content,
-            });
+            const result = await api.chapter.update(currentNovel.id, currentChapter.id, { content });
             if (result.success && result.data) {
-              set({
-                currentChapter: result.data,
-                autoSave: {
-                  ...get().autoSave,
-                  hasUnsavedChanges: false,
-                  lastSavedAt: new Date().toISOString(),
-                },
-              });
-              // 更新章节列表中的字数统计
+              set({ currentChapter: result.data });
               await get().loadChapterList(currentNovel.id);
               return result.data;
             }
@@ -651,19 +640,15 @@ export const useNovelStore = create<NovelStore>()(
         // 只持久化部分状态
         partialize: (state) => ({
           currentNovel: state.currentNovel,
-          autoSave: {
-            hasUnsavedChanges: state.autoSave.hasUnsavedChanges,
-            lastSavedAt: state.autoSave.lastSavedAt,
-          },
         }),
         merge: (persisted, current) => ({
           ...current,
           ...(persisted as Partial<NovelState>),
           autoSave: {
-            ...current.autoSave,
-            ...((persisted as Partial<NovelState>)?.autoSave || {}),
             isSaving: false,
             pendingChanges: false,
+            hasUnsavedChanges: false,
+            lastSavedAt: undefined,
           },
         }),
       }

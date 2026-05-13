@@ -53,6 +53,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // Keep latest callbacks in refs so TipTap's onUpdate always uses current version
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+  const onWordCountChangeRef = useRef(onWordCountChange);
+  onWordCountChangeRef.current = onWordCountChange;
+
   const calculateWordCount = useCallback((text: string): number => {
     const chineseChars = (text.match(/[一-龥]/g) || []).length;
     const englishWords = (text.match(/[a-zA-Z]+/g) || []).length;
@@ -79,9 +85,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       const text = editor.getText();
-      onChange(html);
-      if (onWordCountChange) {
-        onWordCountChange(calculateWordCount(text));
+      onChangeRef.current(html);
+      if (onWordCountChangeRef.current) {
+        onWordCountChangeRef.current(calculateWordCount(text));
       }
       if (showLineHighlight) {
         updateCurrentLineHighlight(editor);
@@ -201,7 +207,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   // Sync external content changes
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
+    if (!editor) return;
+    // Don't overwrite editor with empty string during initial load
+    // (empty content prop means "not loaded yet", not "clear the editor")
+    if (!content) return;
+    if (content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
   }, [content, editor]);

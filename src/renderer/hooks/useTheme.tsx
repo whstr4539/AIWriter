@@ -1,11 +1,6 @@
-/**
- * 主题管理 Hook
- * 支持浅色/深色/跟随系统三种模式
- */
+import React, { useEffect, useState, useCallback, createContext, useContext } from 'react';
 
-import { useEffect, useState, useCallback } from 'react';
-
-type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 interface UseThemeReturn {
   theme: ThemeMode;
@@ -16,9 +11,9 @@ interface UseThemeReturn {
 }
 
 const STORAGE_KEY = 'app-theme';
+const ThemeContext = createContext<UseThemeReturn | null>(null);
 
-export const useTheme = (): UseThemeReturn => {
-  // 从本地存储读取主题设置
+function useThemeInternal(): UseThemeReturn {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(STORAGE_KEY) as ThemeMode;
@@ -27,10 +22,8 @@ export const useTheme = (): UseThemeReturn => {
     return 'system';
   });
 
-  // 计算实际生效的主题
   const [effectiveTheme, setEffectiveTheme] = useState<'light' | 'dark'>('light');
 
-  // 检测系统主题偏好
   const getSystemTheme = useCallback((): 'light' | 'dark' => {
     if (typeof window !== 'undefined' && window.matchMedia) {
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -38,13 +31,6 @@ export const useTheme = (): UseThemeReturn => {
     return 'light';
   }, []);
 
-  // 更新实际生效的主题
-  const updateEffectiveTheme = useCallback(() => {
-    const newEffectiveTheme = theme === 'system' ? getSystemTheme() : theme;
-    setEffectiveTheme(newEffectiveTheme);
-  }, [theme, getSystemTheme]);
-
-  // 设置主题
   const setTheme = useCallback((newTheme: ThemeMode) => {
     setThemeState(newTheme);
     if (typeof window !== 'undefined') {
@@ -52,48 +38,36 @@ export const useTheme = (): UseThemeReturn => {
     }
   }, []);
 
-  // 切换主题
   const toggleTheme = useCallback(() => {
-    const themes: ThemeMode[] = ['light', 'dark', 'system'];
-    const currentIndex = themes.indexOf(theme);
-    const nextTheme = themes[(currentIndex + 1) % themes.length];
-    setTheme(nextTheme);
-  }, [theme, setTheme]);
+    const next = effectiveTheme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+  }, [effectiveTheme, setTheme]);
+
+  // 同步 effectiveTheme
+  useEffect(() => {
+    const resolved = theme === 'system' ? getSystemTheme() : theme;
+    setEffectiveTheme(resolved);
+  }, [theme, getSystemTheme]);
 
   // 监听系统主题变化
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
       if (theme === 'system') {
-        updateEffectiveTheme();
+        setEffectiveTheme(getSystemTheme());
       }
     };
+    mq.addEventListener('change', handleChange);
+    return () => mq.removeEventListener('change', handleChange);
+  }, [theme, getSystemTheme]);
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme, updateEffectiveTheme]);
-
-  // 主题变化时更新文档
-  useEffect(() => {
-    updateEffectiveTheme();
-  }, [theme, updateEffectiveTheme]);
-
-  // 应用主题到文档
+  // 应用 CSS 变量
   useEffect(() => {
     if (typeof document === 'undefined') return;
-
     const root = document.documentElement;
-    
-    // 移除旧的主题类
     root.classList.remove('light-theme', 'dark-theme');
-    
-    // 添加新的主题类
     root.classList.add(`${effectiveTheme}-theme`);
-    
-    // 设置 data-theme 属性用于 CSS 选择器
     root.setAttribute('data-theme', effectiveTheme);
   }, [effectiveTheme]);
 
@@ -104,6 +78,17 @@ export const useTheme = (): UseThemeReturn => {
     setTheme,
     toggleTheme,
   };
+}
+
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const value = useThemeInternal();
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+};
+
+export const useTheme = (): UseThemeReturn => {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error('useTheme 必须在 ThemeProvider 内使用');
+  return ctx;
 };
 
 export default useTheme;

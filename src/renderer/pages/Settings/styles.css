@@ -31,6 +31,16 @@
   margin-bottom: 0;
 }
 
+/* 提示卡片 */
+.settings-tip-card {
+  background: var(--sidebar-active);
+  border-color: var(--color-primary);
+}
+
+[data-theme='dark'] .settings-tip-card {
+  background: rgba(24, 144, 255, 0.1);
+}
+
 /* AI 设置标签页 */
 .ai-settings-tab {
   max-width: 800px;
@@ -67,13 +77,4 @@
   .settings-form .ant-select {
     width: 100% !important;
   }
-}
-
-/* 深色模式适配 */
-.dark .settings-page {
-  background-color: #141414;
-}
-
-.dark .settings-section h3 {
-  color: #e6e6e6;
 }

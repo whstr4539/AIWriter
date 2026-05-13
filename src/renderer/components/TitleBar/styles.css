@@ -1,0 +1,65 @@
+/**
+ * 自定义标题栏样式
+ */
+
+.title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-secondary);
+  -webkit-app-region: drag;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.title-bar-left,
+.title-bar-right {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.title-bar-brand {
+  margin-left: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  letter-spacing: 0.3px;
+}
+
+.title-bar-window-controls {
+  display: flex;
+  height: 100%;
+  margin-left: 4px;
+}
+
+/* 所有图标按钮通用样式 */
+.title-bar-icon-btn {
+  width: 40px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+  border-radius: 0;
+  padding: 0;
+  -webkit-app-region: no-drag;
+}
+
+.title-bar-icon-btn:hover {
+  background: var(--sidebar-hover);
+  color: var(--text-primary);
+}
+
+/* 关闭按钮悬停变红 */
+.title-bar-icon-btn.close-btn:hover {
+  background: #e81123;
+  color: #fff;
+}

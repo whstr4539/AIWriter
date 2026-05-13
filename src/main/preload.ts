@@ -26,6 +26,23 @@ const electronAPI = {
   once: (channel: string, callback: (event: IpcRendererEvent, ...args: any[]) => void) => {
     ipcRenderer.once(channel, callback);
   },
+
+  // 窗口控制
+  minimizeWindow: (): Promise<void> => {
+    return ipcRenderer.invoke('window:minimize');
+  },
+
+  maximizeWindow: (): Promise<void> => {
+    return ipcRenderer.invoke('window:maximize');
+  },
+
+  closeWindow: (): Promise<void> => {
+    return ipcRenderer.invoke('window:close');
+  },
+
+  isMaximized: (): Promise<boolean> => {
+    return ipcRenderer.invoke('window:isMaximized');
+  },
 };
 
 // 使用 contextBridge 安全地暴露 API
@@ -37,3 +54,5 @@ declare global {
     electron: typeof electronAPI;
   }
 }
+
+export type ElectronAPI = typeof electronAPI;

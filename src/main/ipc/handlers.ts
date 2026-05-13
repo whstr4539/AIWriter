@@ -3,7 +3,7 @@
  * 处理渲染进程与主进程之间的通信
  */
 
-import { ipcMain, dialog, shell } from 'electron';
+import { ipcMain, dialog, shell, BrowserWindow } from 'electron';
 import * as path from 'path';
 import type {
   Novel,
@@ -98,6 +98,13 @@ export const IPC_CHANNELS = {
     SHOW_SAVE: 'dialog:showSave',
     SHOW_OPEN: 'dialog:showOpen',
     SHOW_MESSAGE: 'dialog:showMessage',
+  },
+  // 窗口控制
+  WINDOW: {
+    MINIMIZE: 'window:minimize',
+    MAXIMIZE: 'window:maximize',
+    CLOSE: 'window:close',
+    IS_MAXIMIZED: 'window:isMaximized',
   },
   // AI相关
   AI: {
@@ -334,6 +341,34 @@ export async function registerIpcHandlers(): Promise<void> {
       };
     }
   );
+
+  // ==================== 窗口控制 ====================
+
+  ipcMain.handle(IPC_CHANNELS.WINDOW.MINIMIZE, () => {
+    const win = BrowserWindow.getFocusedWindow();
+    if (win) win.minimize();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.WINDOW.MAXIMIZE, () => {
+    const win = BrowserWindow.getFocusedWindow();
+    if (win) {
+      if (win.isMaximized()) {
+        win.unmaximize();
+      } else {
+        win.maximize();
+      }
+    }
+  });
+
+  ipcMain.handle(IPC_CHANNELS.WINDOW.CLOSE, () => {
+    const win = BrowserWindow.getFocusedWindow();
+    if (win) win.close();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.WINDOW.IS_MAXIMIZED, () => {
+    const win = BrowserWindow.getFocusedWindow();
+    return win ? win.isMaximized() : false;
+  });
 
   // ==================== AI操作 ====================
 
@@ -582,6 +617,12 @@ export function unregisterIpcHandlers(): void {
   ipcMain.removeHandler(IPC_CHANNELS.DIALOG.SHOW_SAVE);
   ipcMain.removeHandler(IPC_CHANNELS.DIALOG.SHOW_OPEN);
   ipcMain.removeHandler(IPC_CHANNELS.DIALOG.SHOW_MESSAGE);
+
+  // 窗口控制
+  ipcMain.removeHandler(IPC_CHANNELS.WINDOW.MINIMIZE);
+  ipcMain.removeHandler(IPC_CHANNELS.WINDOW.MAXIMIZE);
+  ipcMain.removeHandler(IPC_CHANNELS.WINDOW.CLOSE);
+  ipcMain.removeHandler(IPC_CHANNELS.WINDOW.IS_MAXIMIZED);
 
   // AI
   ipcMain.removeHandler(IPC_CHANNELS.AI.GENERATE);

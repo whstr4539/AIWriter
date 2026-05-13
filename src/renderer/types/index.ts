@@ -12,9 +12,7 @@ export interface User {
 
 // 应用状态类型
 export interface AppState {
-  theme: 'light' | 'dark';
   sidebarCollapsed: boolean;
-  language: string;
 }
 
 // 路由配置类型

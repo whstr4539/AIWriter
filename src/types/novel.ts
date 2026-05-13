@@ -112,7 +112,8 @@ export interface AIModelInfo {
   id: string;
   name: string;
   description?: string;
-  maxTokens: number;
+  maxTokens: number;        // 上下文窗口大小
+  maxOutputTokens?: number;  // 最大输出 token 数（不填则默认 4096）
   supportsVision?: boolean;
 }
 
@@ -142,7 +143,7 @@ export interface EditorSettings {
   enableSpellCheck: boolean;
   enableMarkdownPreview: boolean;
   toolbarVisible: boolean;
-  defaultWritingMode: 'normal' | 'focus' | 'typewriter';
+  defaultWritingMode: 'normal' | 'focus';
 }
 
 // 导出格式

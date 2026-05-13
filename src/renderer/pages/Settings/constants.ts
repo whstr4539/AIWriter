@@ -2,7 +2,7 @@
  * AI 设置页面常量配置
  */
 
-import type { AIProviderConfig, AIProvider, AIModelInfo } from '../../../types/novel';
+import type { AIProviderConfig, AIProvider } from '../../../types/novel';
 
 // AI 提供商配置映射
 export const AI_PROVIDER_CONFIGS: Record<AIProvider, AIProviderConfig> = {
@@ -11,74 +11,49 @@ export const AI_PROVIDER_CONFIGS: Record<AIProvider, AIProviderConfig> = {
     label: 'OpenAI',
     defaultBaseUrl: 'https://api.openai.com/v1',
     requireApiKey: true,
-    models: [
-      { id: 'gpt-4', name: 'GPT-4', description: '最强大的模型，适合复杂任务', maxTokens: 8192 },
-      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', description: 'GPT-4 的优化版本，更快更便宜', maxTokens: 128000 },
-      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', description: '快速且经济实惠', maxTokens: 16385 },
-    ],
+    models: [],
   },
   anthropic: {
     name: 'anthropic',
     label: 'Anthropic',
     defaultBaseUrl: 'https://api.anthropic.com/v1',
     requireApiKey: true,
-    models: [
-      { id: 'claude-3-opus', name: 'Claude 3 Opus', description: '最强大的 Claude 模型', maxTokens: 200000 },
-      { id: 'claude-3-sonnet', name: 'Claude 3 Sonnet', description: '平衡性能和速度', maxTokens: 200000 },
-      { id: 'claude-3-haiku', name: 'Claude 3 Haiku', description: '最快的响应速度', maxTokens: 200000 },
-    ],
+    models: [],
   },
   google: {
     name: 'google',
     label: 'Google',
     defaultBaseUrl: 'https://generativelanguage.googleapis.com/v1',
     requireApiKey: true,
-    models: [
-      { id: 'gemini-pro', name: 'Gemini Pro', description: 'Google 的通用模型', maxTokens: 32768 },
-      { id: 'gemini-pro-vision', name: 'Gemini Pro Vision', description: '支持视觉输入', maxTokens: 32768, supportsVision: true },
-    ],
+    models: [],
   },
   aliyun: {
     name: 'aliyun',
     label: '阿里云',
     defaultBaseUrl: 'https://dashscope.aliyuncs.com/api/v1',
     requireApiKey: true,
-    models: [
-      { id: 'qwen-turbo', name: '通义千问 Turbo', description: '快速响应版本', maxTokens: 8000 },
-      { id: 'qwen-plus', name: '通义千问 Plus', description: '平衡版本', maxTokens: 32000 },
-      { id: 'qwen-max', name: '通义千问 Max', description: '最强性能版本', maxTokens: 32000 },
-    ],
+    models: [],
   },
   baidu: {
     name: 'baidu',
     label: '百度',
     defaultBaseUrl: 'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop',
     requireApiKey: true,
-    models: [
-      { id: 'ernie-bot', name: 'ERNIE-Bot', description: '百度文心一言', maxTokens: 4096 },
-      { id: 'ernie-bot-turbo', name: 'ERNIE-Bot Turbo', description: '文心一言快速版', maxTokens: 4096 },
-    ],
+    models: [],
   },
   bytedance: {
     name: 'bytedance',
     label: '字节跳动',
     defaultBaseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     requireApiKey: true,
-    models: [
-      { id: 'doubao-pro', name: 'Doubao Pro', description: '豆包专业版', maxTokens: 4096 },
-      { id: 'doubao-lite', name: 'Doubao Lite', description: '豆包轻量版', maxTokens: 4096 },
-    ],
+    models: [],
   },
   zhipu: {
     name: 'zhipu',
     label: '智谱AI',
     defaultBaseUrl: 'https://open.bigmodel.cn/api/paas/v4',
     requireApiKey: true,
-    models: [
-      { id: 'glm-4', name: 'GLM-4', description: '智谱最新大模型', maxTokens: 128000 },
-      { id: 'glm-4-air', name: 'GLM-4 Air', description: '高性价比版本', maxTokens: 128000 },
-      { id: 'glm-3-turbo', name: 'GLM-3 Turbo', description: '快速响应版本', maxTokens: 128000 },
-    ],
+    models: [],
   },
   custom: {
     name: 'custom',
@@ -168,18 +143,7 @@ export const TIMEOUT_OPTIONS = [
   { value: 120000, label: '2 分钟' },
 ];
 
-// 获取指定提供商的模型列表
-export function getModelsByProvider(provider: AIProvider): AIModelInfo[] {
-  return AI_PROVIDER_CONFIGS[provider]?.models || [];
-}
-
 // 获取指定提供商的默认基础 URL
 export function getDefaultBaseUrl(provider: AIProvider): string {
   return AI_PROVIDER_CONFIGS[provider]?.defaultBaseUrl || '';
-}
-
-// 获取指定模型信息
-export function getModelInfo(provider: AIProvider, modelId: string): AIModelInfo | undefined {
-  const models = getModelsByProvider(provider);
-  return models.find((m) => m.id === modelId);
 }

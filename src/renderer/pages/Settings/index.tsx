@@ -22,7 +22,7 @@ import {
 } from '@ant-design/icons';
 import type { AISettings, AppSettings, EditorSettings, AITestResult } from '../../../types/novel';
 import { settingsApi } from '../../api/ipc';
-import { useAppStore } from '../../store';
+import { useTheme } from '../../hooks';
 import AISettingsTab from './components/AISettingsTab';
 import GeneralSettingsTab from './components/GeneralSettingsTab';
 import EditorSettingsTab from './components/EditorSettingsTab';
@@ -45,7 +45,7 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
 };
 
 const Settings: React.FC = () => {
-  const { setTheme, setLanguage } = useAppStore();
+  const { theme: currentTheme, setTheme } = useTheme();
 
   // 加载状态
   const [loading, setLoading] = useState(true);
@@ -77,14 +77,9 @@ const Settings: React.FC = () => {
         }
 
         if (appResult.success && appResult.data) {
-          setAppSettings({ ...DEFAULT_APP_SETTINGS, ...appResult.data });
-          // 应用主题和语言设置
-          if (appResult.data.theme && appResult.data.theme !== 'system') {
-            setTheme(appResult.data.theme);
-          }
-          if (appResult.data.language) {
-            setLanguage(appResult.data.language);
-          }
+          // 用 hook 当前的主题覆盖从文件加载的值，保证显示一致
+          const merged = { ...DEFAULT_APP_SETTINGS, ...appResult.data, theme: currentTheme };
+          setAppSettings(merged);
         }
 
         // 编辑器设置从本地存储加载（或使用默认值）
@@ -106,7 +101,7 @@ const Settings: React.FC = () => {
     };
 
     loadSettings();
-  }, [setTheme, setLanguage]);
+  }, [setTheme]);
 
   // 处理 AI 设置变化
   const handleAISettingsChange = useCallback((newSettings: AISettings) => {
@@ -116,15 +111,12 @@ const Settings: React.FC = () => {
 
   // 处理应用设置变化
   const handleAppSettingsChange = useCallback((newSettings: AppSettings) => {
-    setAppSettings(newSettings);
-    setHasChanges(true);
-
-    // 实时应用某些设置
-    if (newSettings.theme !== 'system') {
+    if (newSettings.theme !== currentTheme) {
       setTheme(newSettings.theme);
     }
-    setLanguage(newSettings.language);
-  }, [setTheme, setLanguage]);
+    setAppSettings(newSettings);
+    setHasChanges(true);
+  }, [setTheme, currentTheme]);
 
   // 处理编辑器设置变化
   const handleEditorSettingsChange = useCallback((newSettings: EditorSettings) => {

@@ -49,9 +49,9 @@ const generateId = (): string => {
 
 // 统计字数
 const countWords = (content: string): number => {
-  // 中文字符 + 英文单词
-  const chineseChars = (content.match(/[\u4e00-\u9fa5]/g) || []).length;
-  const englishWords = (content.match(/[a-zA-Z]+/g) || []).length;
+  const plainText = content.replace(/<[^>]+>/g, '');
+  const chineseChars = (plainText.match(/[\u4e00-\u9fa5]/g) || []).length;
+  const englishWords = (plainText.match(/[a-zA-Z]+/g) || []).length;
   return chineseChars + englishWords;
 };
 

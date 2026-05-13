@@ -11,7 +11,6 @@ AI Writer 是一个基于 Electron 的 AI 辅助小说创作桌面应用。前�
 ```bash
 npm install              # 安装依赖
 npm run dev              # 开发模式（编译 Electron 主进程 + 启动 Vite dev server + 启动 Electron）
-npm run dev:vite         # 仅启动 Vite dev server（Web 调试，使用 mock API）
 npm run build            # 完整构建（TypeScript 编译 + Vite 打包）
 npm run icons            # 用 build/icon.png 生成各平台图标
 npm run pack:win         # 打包 Windows（不压缩安装包）
@@ -56,7 +55,7 @@ src/
 │   ├── store/          # Zustand stores
 │   │   ├── index.ts       # useAppStore（theme/sidebar/language，persist 到 localStorage）
 │   │   └── novelStore.ts  # useNovelStore（novel/chapter CRUD + 自动保存，persist currentNovel）
-│   ├── api/ipc.ts      # 渲染进程 API 层：封装 window.electron.invoke()，非 Electron 环境自动使用 mock
+│   ├── api/ipc.ts      # 渲染进程 API 层：封装 window.electron.invoke()
 │   ├── hooks/          # 自定义 hooks：useAutoSave, useTheme, useTypewriterMode, useWritingStats, useVirtualList, useOnboarding
 │   ├── components/     # 通用组件
 │   │   ├── Layout/         # 应用布局（侧边栏 + 内容区）
@@ -91,7 +90,7 @@ src/
 1. **渲染进程 → 主进程**: 通过 `window.electron.invoke(channel, ...args)` 发送 IPC 请求
 2. **主进程 → 渲染进程**: AI 流式响应通过 `event.sender.send('ai:streamChunk', chunk)` 推送事件
 3. **Channel 命名**: `domain:action` 格式，如 `novel:create`, `ai:streamGenerate`
-4. **API 封装**: 渲染进程 `api/*` 对象封装所有 IPC 调用；非 Electron 环境下自动使用 `mockElectronAPI`（localStorage 模拟 CRUD）
+4. **API 封装**: 渲染进程 `api/*` 对象封装所有 IPC 调用
 
 ### AI 适配器模式
 

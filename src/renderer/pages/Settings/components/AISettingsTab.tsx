@@ -1,7 +1,3 @@
-/**
- * AI 设置标签页组件
- */
-
 import React, { useState, useCallback } from 'react';
 import {
   Form,
@@ -31,9 +27,7 @@ import {
   PROVIDER_OPTIONS,
   TIMEOUT_OPTIONS,
   TEMPERATURE_DESCRIPTION,
-  getModelsByProvider,
   getDefaultBaseUrl,
-  getModelInfo,
 } from '../constants';
 
 const { Text, Paragraph } = Typography;
@@ -54,99 +48,61 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<AITestResult | null>(null);
-  const [availableModels, setAvailableModels] = useState(getModelsByProvider(settings.provider));
 
-  // 当提供商改变时更新模型列表
   const handleProviderChange = useCallback(
     (provider: AIProvider) => {
-      const models = getModelsByProvider(provider);
-      setAvailableModels(models);
-
-      // 自动选择第一个可用模型，或清空（自定义提供商）
-      const newModel = models.length > 0 ? models[0].id : '';
       const defaultBaseUrl = getDefaultBaseUrl(provider);
-
       const newSettings: AISettings = {
         ...settings,
         provider,
-        model: newModel,
         baseUrl: provider === 'custom' ? '' : defaultBaseUrl,
       };
-
-      form.setFieldsValue({
-        provider,
-        model: newModel,
-        baseUrl: provider === 'custom' ? '' : defaultBaseUrl,
-      });
-
+      form.setFieldsValue({ provider, baseUrl: newSettings.baseUrl });
       onChange(newSettings);
     },
     [settings, form, onChange]
   );
 
-  // 处理表单值变化
   const handleValuesChange = useCallback(
     (changedValues: Partial<AISettings>, allValues: AISettings) => {
-      // 如果改变了提供商，处理模型列表更新
       if (changedValues.provider && changedValues.provider !== settings.provider) {
-        handleProviderChange(changedValues.provider);
+        handleProviderChange(changedValues.provider as AIProvider);
         return;
       }
-
       onChange(allValues);
     },
     [settings, onChange, handleProviderChange]
   );
 
-  // 测试连接
   const handleTestConnection = async () => {
     if (!onTestConnection) {
       message.warning('测试功能未实现');
       return;
     }
-
     const values = form.getFieldsValue();
-
-    // 验证必填项
     if (!values.apiKey) {
       message.error('请输入 API Key');
       return;
     }
-
     if (values.provider === 'custom' && !values.baseUrl) {
       message.error('自定义提供商需要填写 Base URL');
       return;
     }
-
     setTesting(true);
     setTestResult(null);
-
     try {
       const result = await onTestConnection(values);
       setTestResult(result);
-
-      if (result.success) {
-        message.success(result.message);
-      } else {
-        message.error(result.message);
-      }
+      message[result.success ? 'success' : 'error'](result.message);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '测试连接失败';
-      setTestResult({
-        success: false,
-        message: errorMessage,
-      });
+      setTestResult({ success: false, message: errorMessage });
       message.error(errorMessage);
     } finally {
       setTesting(false);
     }
   };
 
-  // 获取当前模型的最大 token 数
-  const currentModelInfo = getModelInfo(settings.provider, settings.model);
-  const maxTokensLimit = currentModelInfo?.maxTokens || 4096;
-
-  // 获取当前提供商配置
   const providerConfig = AI_PROVIDER_CONFIGS[settings.provider];
   const isCustomProvider = settings.provider === 'custom';
 
@@ -159,7 +115,6 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
         onValuesChange={handleValuesChange}
         className="settings-form"
       >
-        {/* 提供商选择 */}
         <Form.Item
           name="provider"
           label="AI 提供商"
@@ -174,7 +129,6 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
           </Select>
         </Form.Item>
 
-        {/* 自定义提供商名称（仅自定义提供商显示） */}
         {isCustomProvider && (
           <Form.Item
             name="customProviderName"
@@ -185,7 +139,6 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
           </Form.Item>
         )}
 
-        {/* API Key */}
         <Form.Item
           name="apiKey"
           label={
@@ -211,7 +164,6 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
           />
         </Form.Item>
 
-        {/* Base URL（自定义提供商时必填） */}
         <Form.Item
           name="baseUrl"
           label={
@@ -228,7 +180,7 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
           ]}
           extra={
             !isCustomProvider && (
-              <Text type="secondary">使用默认值：{providerConfig.defaultBaseUrl}</Text>
+              <Text type="secondary">默认：{providerConfig.defaultBaseUrl}</Text>
             )
           }
         >
@@ -239,62 +191,15 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
           />
         </Form.Item>
 
-        {/* 模型选择 */}
         <Form.Item
           name="model"
           label="模型"
-          rules={[{ required: true, message: '请选择或输入模型名称' }]}
+          rules={[{ required: true, message: '请输入模型名称' }]}
+          extra={<Text type="secondary">填写模型 ID，例如 gpt-4o、claude-sonnet-4-6、deepseek-chat</Text>}
         >
-          <Select
-            placeholder="选择模型"
-            style={{ width: 400 }}
-            mode={undefined}
-            dropdownRender={(menu) => (
-              <>
-                {menu}
-                <div style={{ padding: '8px 12px', borderTop: '1px solid #f0f0f0' }}>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    或直接在下框中输入自定义模型名称：
-                  </Text>
-                  <Input
-                    style={{ marginTop: 4 }}
-                    placeholder="输入自定义模型 ID"
-                    value={form.getFieldValue('model') && !availableModels.find(m => m.id === form.getFieldValue('model')) ? form.getFieldValue('model') : ''}
-                    onChange={(e) => {
-                      form.setFieldValue('model', e.target.value);
-                      onChange({ ...settings, model: e.target.value });
-                    }}
-                    onKeyDown={(e) => e.stopPropagation()}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              </>
-            )}
-          >
-            {availableModels.map((model) => (
-              <Option key={model.id} value={model.id}>
-                <div>
-                  <div>{model.name}</div>
-                  {model.description && (
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                      {model.description} (最大 {model.maxTokens.toLocaleString()} tokens)
-                    </Text>
-                  )}
-                </div>
-              </Option>
-            ))}
-            {form.getFieldValue('model') && !availableModels.find(m => m.id === form.getFieldValue('model')) && (
-              <Option key={form.getFieldValue('model')} value={form.getFieldValue('model')}>
-                <div>
-                  <div>自定义: {form.getFieldValue('model')}</div>
-                  <Text type="secondary" style={{ fontSize: 12 }}>用户自定义模型</Text>
-                </div>
-              </Option>
-            )}
-          </Select>
+          <Input placeholder="输入模型名称" style={{ width: 400 }} />
         </Form.Item>
 
-        {/* 温度参数 */}
         <Form.Item
           name="temperature"
           label={
@@ -340,36 +245,26 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
           </div>
         </Form.Item>
 
-        {/* 最大 Token 数 */}
         <Form.Item
           name="maxTokens"
           label={
             <Space>
               最大 Token 数
-              <Tooltip title={`当前模型最大支持 ${maxTokensLimit.toLocaleString()} tokens`}>
+              <Tooltip title="单次生成的最大输出 token 数">
                 <InfoCircleOutlined style={{ color: '#8c8c8c' }} />
               </Tooltip>
             </Space>
           }
-          rules={[
-            { required: true, message: '请输入最大 Token 数' },
-            {
-              type: 'number',
-              max: maxTokensLimit,
-              message: `不能超过模型最大限制 (${maxTokensLimit.toLocaleString()})`,
-            },
-          ]}
         >
           <InputNumber
             min={100}
-            max={maxTokensLimit}
+            max={131072}
             step={100}
             style={{ width: 200 }}
-            placeholder={`100 - ${maxTokensLimit.toLocaleString()}`}
+            placeholder="100 - 131072"
           />
         </Form.Item>
 
-        {/* 超时设置 */}
         <Form.Item name="timeout" label="请求超时时间">
           <Select style={{ width: 200 }}>
             {TIMEOUT_OPTIONS.map((option) => (
@@ -380,7 +275,6 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
           </Select>
         </Form.Item>
 
-        {/* 测试连接按钮 */}
         <Form.Item>
           <Button
             type="primary"
@@ -393,7 +287,6 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
           </Button>
         </Form.Item>
 
-        {/* 测试结果 */}
         {testResult && (
           <Form.Item>
             <Alert
@@ -415,7 +308,6 @@ const AISettingsTab: React.FC<AISettingsTabProps> = ({
           </Form.Item>
         )}
 
-        {/* 提示信息 */}
         <Card size="small" style={{ marginTop: 16, backgroundColor: '#f6ffed' }}>
           <Paragraph style={{ margin: 0 }}>
             <InfoCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />

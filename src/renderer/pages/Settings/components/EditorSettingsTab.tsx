@@ -222,13 +222,10 @@ const EditorSettingsTab: React.FC<EditorSettingsTabProps> = ({
             <Radio.Group>
               <Radio.Button value="normal">普通模式</Radio.Button>
               <Radio.Button value="focus">专注模式</Radio.Button>
-              <Radio.Button value="typewriter">打字机模式</Radio.Button>
             </Radio.Group>
           </Form.Item>
           <Text type="secondary" style={{ fontSize: 12 }}>
             专注模式：隐藏干扰元素，专注于写作
-            <br />
-            打字机模式：当前行保持在屏幕中央
           </Text>
         </Card>
 
@@ -236,16 +233,17 @@ const EditorSettingsTab: React.FC<EditorSettingsTabProps> = ({
         <Card
           size="small"
           title="预览"
-          style={{ backgroundColor: '#f5f5f5' }}
+          style={{ backgroundColor: 'var(--bg-secondary)' }}
         >
           <div
             style={{
               padding: 16,
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--bg-primary)',
               borderRadius: 4,
               fontFamily: settings.fontFamily,
               fontSize: settings.fontSize,
               lineHeight: settings.lineHeight,
+              color: 'var(--text-primary)',
             }}
           >
             <p style={{ margin: 0 }}>

@@ -172,7 +172,7 @@ const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
         </Card>
 
         {/* 说明信息 */}
-        <Card size="small" style={{ backgroundColor: '#e6f7ff' }}>
+        <Card size="small" className="settings-tip-card">
           <Text type="secondary">
             提示：部分设置需要重启应用后才能生效。
           </Text>

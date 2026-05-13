@@ -1,12 +1,9 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNovelStore } from '../store/novelStore';
 
 interface UseAutoSaveOptions {
   interval?: number;
   enabled?: boolean;
-  onContentChange?: (content: string) => void;
-  onSaveSuccess?: () => void;
-  onSaveError?: (error: Error) => void;
 }
 
 interface UseAutoSaveReturn {
@@ -19,47 +16,37 @@ interface UseAutoSaveReturn {
 }
 
 export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn {
-  const {
-    interval = 30000,
-    enabled = true,
-    onContentChange,
-    onSaveSuccess,
-    onSaveError,
-  } = options;
+  const { interval = 30000, enabled = true } = options;
 
-  const {
-    currentChapter,
-    autoSave,
-    updateChapterContent,
-    setAutoSaveState,
-    markUnsavedChanges,
-  } = useNovelStore();
+  const { currentChapter, updateChapterContent, markUnsavedChanges } = useNovelStore();
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<string | undefined>(undefined);
 
   const contentRef = useRef(currentChapter?.content || '');
+  const dirtyRef = useRef(false);
+  const savingRef = useRef(false);
+  const loadedRef = useRef(!!currentChapter?.content);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isMountedRef = useRef(true);
-
-  // Refs to avoid timer restarts on state changes
-  const hasUnsavedRef = useRef(autoSave.hasUnsavedChanges);
-  hasUnsavedRef.current = autoSave.hasUnsavedChanges;
-  const isSavingRef = useRef(autoSave.isSaving);
-  isSavingRef.current = autoSave.isSaving;
-  const enabledRef = useRef(enabled);
-  enabledRef.current = enabled;
   const chapterIdRef = useRef(currentChapter?.id);
   chapterIdRef.current = currentChapter?.id;
 
-  // Sync external content change to ref on chapter switch
+  // Sync content ref when switching chapters
   useEffect(() => {
     if (currentChapter?.content !== undefined) {
       contentRef.current = currentChapter.content;
+      dirtyRef.current = false;
+      setHasUnsavedChanges(false);
+      loadedRef.current = true;
+    } else {
+      loadedRef.current = false;
     }
   }, [currentChapter?.id]);
 
-  // Cleanup on unmount
+  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
-      isMountedRef.current = false;
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -67,35 +54,7 @@ export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn
     };
   }, []);
 
-  const performSave = useCallback(async () => {
-    if (!currentChapter || autoSave.isSaving) return;
-
-    try {
-      setAutoSaveState({ isSaving: true });
-      await updateChapterContent(contentRef.current);
-
-      if (isMountedRef.current) {
-        setAutoSaveState({
-          isSaving: false,
-          hasUnsavedChanges: false,
-          pendingChanges: false,
-          lastSavedAt: new Date().toISOString(),
-        });
-        onSaveSuccess?.();
-      }
-    } catch (error) {
-      if (isMountedRef.current) {
-        setAutoSaveState({ isSaving: false });
-        onSaveError?.(error instanceof Error ? error : new Error('保存失败'));
-      }
-    }
-  }, [currentChapter?.id, autoSave.isSaving, updateChapterContent, setAutoSaveState, onSaveSuccess, onSaveError]);
-
-  // Ref to always get latest performSave in timer (must be after performSave declaration)
-  const performSaveRef = useRef(performSave);
-  performSaveRef.current = performSave;
-
-  // Auto-save timer — only resets when interval changes
+  // Auto-save timer
   useEffect(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -105,9 +64,25 @@ export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn
     if (!enabled) return;
 
     timerRef.current = setInterval(async () => {
-      if (!enabledRef.current || !chapterIdRef.current) return;
-      if (hasUnsavedRef.current && !isSavingRef.current) {
-        await performSaveRef.current();
+      if (!chapterIdRef.current || !loadedRef.current) return;
+      if (!dirtyRef.current || savingRef.current) return;
+
+      const saveContent = contentRef.current || useNovelStore.getState().currentChapter?.content || '';
+      if (!saveContent) return;
+
+      savingRef.current = true;
+      setIsSaving(true);
+      try {
+        const result = await updateChapterContent(saveContent);
+        if (result) {
+          dirtyRef.current = false;
+          setHasUnsavedChanges(false);
+        }
+      } catch {
+        // 内部已 catch，兜底
+      } finally {
+        savingRef.current = false;
+        setIsSaving(false);
       }
     }, interval);
 
@@ -117,28 +92,45 @@ export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn
         timerRef.current = null;
       }
     };
-  }, [enabled, interval]);
+  }, [enabled, interval, updateChapterContent]);
 
   const setContent = useCallback((newContent: string) => {
     contentRef.current = newContent;
+    dirtyRef.current = true;
+    setHasUnsavedChanges(true);
+    markUnsavedChanges();
 
     const { currentChapter: ch, setCurrentChapter } = useNovelStore.getState();
     if (ch) {
       setCurrentChapter({ ...ch, content: newContent });
     }
-
-    markUnsavedChanges();
-    onContentChange?.(newContent);
-  }, [markUnsavedChanges, onContentChange]);
+  }, [markUnsavedChanges]);
 
   const saveNow = useCallback(async () => {
-    await performSave();
-  }, [performSave]);
+    if (savingRef.current || !loadedRef.current) return;
+
+    const saveContent = contentRef.current || useNovelStore.getState().currentChapter?.content || '';
+    if (!saveContent) return;
+
+    savingRef.current = true;
+    setIsSaving(true);
+    try {
+      const result = await updateChapterContent(saveContent);
+      if (result) {
+        dirtyRef.current = false;
+        setHasUnsavedChanges(false);
+        setLastSavedAt(new Date().toISOString());
+      }
+    } finally {
+      savingRef.current = false;
+      setIsSaving(false);
+    }
+  }, [updateChapterContent]);
 
   return {
-    isSaving: autoSave.isSaving,
-    hasUnsavedChanges: autoSave.hasUnsavedChanges,
-    lastSavedAt: autoSave.lastSavedAt,
+    isSaving,
+    hasUnsavedChanges,
+    lastSavedAt,
     setContent,
     saveNow,
     markUnsaved: markUnsavedChanges,

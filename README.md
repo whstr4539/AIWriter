@@ -49,7 +49,6 @@ npm run dev
 - Vite dev server 运行在 `http://localhost:5173`
 - Electron 窗口自动打开并加载 dev server
 - 支持热更新（渲染进程）
-- 如果没有配置 AI，可以先用 `npm run dev:vite` 在浏览器中调试（使用 mock API）
 
 ## 使用说明
 

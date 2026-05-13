@@ -95,12 +95,33 @@ const ChapterEditPage: React.FC = () => {
     }
   }, [novelId, chapterId, loadChapter]);
 
+  // Track whether chapter data has finished loading
+  const chapterLoadedRef = useRef(false);
+
+  // Keep latest callback refs for TipTap (which captures onUpdate once at creation)
+  const handleContentChangeRef = useRef<(c: string) => void>(() => {});
+  handleContentChangeRef.current = (newContent: string) => {
+    setContent(newContent);
+    // Don't track as dirty until chapter data is fully loaded
+    if (chapterLoadedRef.current && newContent !== baselineContentRef.current) {
+      trackContent(newContent);
+    }
+    if (currentChapter) {
+      setCurrentChapter({ ...currentChapter, content: newContent });
+    }
+  };
+
+  // Track the baseline content to prevent false unsaved on initial load
+  const baselineContentRef = useRef('');
+
   // Sync chapter data to local state on chapter switch
   useEffect(() => {
     if (currentChapter) {
       setTitle(currentChapter.title);
       setContent(currentChapter.content);
       setWordCount(currentChapter.wordCount);
+      baselineContentRef.current = currentChapter.content;
+      chapterLoadedRef.current = true;
     }
   }, [currentChapter?.id]);
 
@@ -121,13 +142,8 @@ const ChapterEditPage: React.FC = () => {
     return () => { stopTracking(); };
   }, [startTracking, stopTracking]);
 
-  // Editor content change
   const handleContentChange = (newContent: string) => {
-    setContent(newContent);
-    trackContent(newContent);
-    if (currentChapter) {
-      setCurrentChapter({ ...currentChapter, content: newContent });
-    }
+    handleContentChangeRef.current(newContent);
   };
 
   // Word count change

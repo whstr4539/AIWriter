@@ -1,13 +1,19 @@
 /**
  * 布局组件样式
- * 包含响应式侧边栏、移动端适配等
  */
 
 /* ==================== 布局基础 ==================== */
 
+.app-frame {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .app-layout {
-  min-height: 100vh;
-  max-height: 100vh;
+  flex: 1;
+  min-height: 0;
   background: var(--bg-primary);
   transition: background-color var(--transition-normal);
 }
@@ -17,7 +23,6 @@
 .app-sider {
   background: var(--sidebar-bg);
   border-right: 1px solid var(--border-secondary);
-  box-shadow: var(--shadow-sm);
   transition: all var(--transition-normal);
 }
 
@@ -26,17 +31,16 @@
   flex-direction: column;
 }
 
-/* Logo */
+/* Logo（仅移动端抽屉使用） */
 .logo {
-  height: 64px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--color-primary);
   border-bottom: 1px solid var(--border-secondary);
-  transition: all var(--transition-normal);
 }
 
 /* 菜单样式 */
@@ -66,72 +70,8 @@
   display: none;
 }
 
-/* 折叠状态下的菜单 */
 .app-sider.ant-layout-sider-collapsed .ant-menu-item {
   padding: 0 calc(50% - 16px) !important;
-}
-
-/* ==================== 头部 ==================== */
-
-.app-header {
-  background: var(--bg-elevated);
-  border-bottom: 1px solid var(--border-secondary);
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-normal);
-}
-
-.header-left,
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-/* 移动端菜单按钮 */
-.mobile-menu-btn {
-  display: none;
-}
-
-/* 主题切换按钮 */
-.theme-toggle-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  color: var(--text-secondary);
-}
-
-.theme-toggle-btn:hover {
-  background: var(--sidebar-hover);
-  color: var(--color-primary);
-}
-
-/* 用户菜单 */
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.user-menu:hover {
-  background: var(--sidebar-hover);
-}
-
-.user-name {
-  color: var(--text-primary);
-  font-weight: 500;
 }
 
 /* ==================== 内容区域 ==================== */
@@ -141,14 +81,13 @@
   padding: 24px;
   background: var(--bg-elevated);
   border-radius: 12px;
-  box-shadow: var(--shadow-sm);
   transition: all var(--transition-normal);
   overflow-y: auto;
   flex: 1;
   min-height: 0;
 }
 
-/* ==================== 移动端遮罩 ==================== */
+/* ==================== 移动端 ==================== */
 
 .mobile-overlay {
   position: fixed;
@@ -169,68 +108,14 @@
 /* ==================== 响应式适配 ==================== */
 
 @media (max-width: 768px) {
-  /* 侧边栏变为抽屉 */
-  .app-sider {
-    position: fixed !important;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 100;
-    transform: translateX(-100%);
-    box-shadow: var(--shadow-xl);
-  }
-
-  .app-sider.mobile-open {
-    transform: translateX(0);
-  }
-
-  /* 显示移动端菜单按钮 */
-  .mobile-menu-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all var(--transition-fast);
-  }
-
-  .mobile-menu-btn:hover {
-    background: var(--sidebar-hover);
-    color: var(--color-primary);
-  }
-
-  /* 头部调整 */
-  .app-header {
-    padding: 0 16px;
-  }
-
-  .header-left {
-    gap: 8px;
-  }
-
-  /* 隐藏折叠按钮 */
-  .header-left .ant-btn:first-child {
-    display: none;
-  }
-
-  /* 内容区域调整 */
   .app-content {
-    margin: 16px;
+    margin: 12px;
     padding: 16px;
     border-radius: 8px;
-  }
-
-  /* 用户名隐藏 */
-  .user-name {
-    display: none;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-  /* 平板侧边栏宽度 */
   .app-sider {
     flex: 0 0 200px !important;
     max-width: 200px !important;
@@ -245,21 +130,18 @@
 }
 
 @media (min-width: 1025px) {
-  /* 桌面端默认样式 */
   .app-content {
     margin: 24px;
     padding: 24px;
   }
 }
 
-/* ==================== 动画效果 ==================== */
+/* ==================== 动画 ==================== */
 
-/* 侧边栏展开/收起动画 */
 .app-sider {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 内容区域过渡 */
 .app-content {
   animation: fadeIn 0.3s ease;
 }
@@ -275,7 +157,6 @@
   }
 }
 
-/* 菜单项动画 */
 .app-sider .ant-menu-item {
   animation: slideInLeft 0.2s ease;
 }
@@ -290,8 +171,6 @@
     transform: translateX(0);
   }
 }
-
-/* ==================== 无障碍支持 ==================== */
 
 @media (prefers-reduced-motion: reduce) {
   .app-sider,

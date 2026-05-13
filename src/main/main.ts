@@ -13,6 +13,8 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    frame: false, // 隐藏原生标题栏
+    titleBarStyle: 'hidden', // macOS 上隐藏标题栏
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -37,6 +39,14 @@ function createWindow(): void {
   // 窗口准备好后显示
   mainWindow.once('ready-to-show', () => {
     mainWindow?.show();
+  });
+
+  // 转发最大化/取消最大化事件到渲染进程
+  mainWindow.on('maximize', () => {
+    mainWindow?.webContents.send('window:maximizeChange', true);
+  });
+  mainWindow.on('unmaximize', () => {
+    mainWindow?.webContents.send('window:maximizeChange', false);
   });
 
   // 当 window 被关闭，这个事件会被触发

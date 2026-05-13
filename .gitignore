@@ -33,3 +33,6 @@ release/
 # Logs
 *.log
 npm-debug.log*
+
+# Docs
+docs/
