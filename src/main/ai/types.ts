@@ -108,6 +108,11 @@ export interface IAIAdapter {
   ): Promise<void>;
 
   /**
+   * 终止正在进行的流式生成
+   */
+  abortStream(): void;
+
+  /**
    * 测试连接
    */
   testConnection(): Promise<{ success: boolean; message: string; latency: number }>;

@@ -187,40 +187,33 @@ export class AnthropicAdapter extends BaseAdapter {
    */
   parseStreamLine(line: string): AIStreamChunk | null {
     try {
-      // Anthropic 使用 SSE 格式，每行是一个事件
-      if (line.startsWith('event: ')) {
-        return null;
+      // makeStreamRequest 已经剥离了 "data: " 前缀，这里直接解析 JSON
+      const event = JSON.parse(line) as AnthropicStreamEvent;
+
+      // 内容增量
+      if (event.type === 'content_block_delta' && event.delta?.text) {
+        return {
+          content: event.delta.text,
+        };
       }
 
-      if (line.startsWith('data: ')) {
-        const data = line.slice(6);
-        const event = JSON.parse(data) as AnthropicStreamEvent;
+      // 消息结束
+      if (event.type === 'message_stop') {
+        return {
+          content: '',
+          finishReason: 'stop',
+        };
+      }
 
-        // 内容增量
-        if (event.type === 'content_block_delta' && event.delta?.text) {
-          return {
-            content: event.delta.text,
-          };
-        }
-
-        // 消息结束
-        if (event.type === 'message_stop') {
-          return {
-            content: '',
-            finishReason: 'stop',
-          };
-        }
-
-        // 使用信息
-        if (event.type === 'message_delta' && event.delta?.usage) {
-          return {
-            content: '',
-            usage: {
-              promptTokens: event.delta.usage.input_tokens,
-              completionTokens: event.delta.usage.output_tokens,
-            },
-          };
-        }
+      // 使用信息
+      if (event.type === 'message_delta' && event.delta?.usage) {
+        return {
+          content: '',
+          usage: {
+            promptTokens: event.delta.usage.input_tokens,
+            completionTokens: event.delta.usage.output_tokens,
+          },
+        };
       }
 
       return null;

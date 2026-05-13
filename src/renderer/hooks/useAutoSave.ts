@@ -67,30 +67,6 @@ export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn
     };
   }, []);
 
-  // Auto-save timer — only resets when interval changes
-  useEffect(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-
-    if (!enabled) return;
-
-    timerRef.current = setInterval(async () => {
-      if (!enabledRef.current || !chapterIdRef.current) return;
-      if (hasUnsavedRef.current && !isSavingRef.current) {
-        await performSave();
-      }
-    }, interval);
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [enabled, interval]);
-
   const performSave = useCallback(async () => {
     if (!currentChapter || autoSave.isSaving) return;
 
@@ -114,6 +90,34 @@ export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn
       }
     }
   }, [currentChapter?.id, autoSave.isSaving, updateChapterContent, setAutoSaveState, onSaveSuccess, onSaveError]);
+
+  // Ref to always get latest performSave in timer (must be after performSave declaration)
+  const performSaveRef = useRef(performSave);
+  performSaveRef.current = performSave;
+
+  // Auto-save timer — only resets when interval changes
+  useEffect(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    if (!enabled) return;
+
+    timerRef.current = setInterval(async () => {
+      if (!enabledRef.current || !chapterIdRef.current) return;
+      if (hasUnsavedRef.current && !isSavingRef.current) {
+        await performSaveRef.current();
+      }
+    }, interval);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [enabled, interval]);
 
   const setContent = useCallback((newContent: string) => {
     contentRef.current = newContent;

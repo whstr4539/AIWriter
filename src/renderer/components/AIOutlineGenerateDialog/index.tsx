@@ -21,6 +21,7 @@ import {
   ReloadOutlined,
   ClockCircleOutlined,
   ThunderboltOutlined,
+  StopOutlined,
 } from '@ant-design/icons';
 import { aiApi, AIStreamChunk } from '../../api/ipc';
 import { PromptTemplate } from '../../utils/promptTemplates';
@@ -55,6 +56,11 @@ const outlineTypeLabels: Record<string, string> = {
   chapter: '章纲',
 };
 
+// 模块级变量：保留对话框关闭时的生成状态，支持再次打开时恢复
+let persistedContent = '';
+let persistedStatus: GenerationStatus = GenerationStatus.IDLE;
+let persistedError: string | null = null;
+
 const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
   open,
   outlineType,
@@ -65,25 +71,34 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
   onClose,
   onSave,
 }) => {
-  const [status, setStatus] = useState<GenerationStatus>(GenerationStatus.IDLE);
-  const [generatedContent, setGeneratedContent] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<GenerationStatus>(
+    open ? persistedStatus : GenerationStatus.IDLE
+  );
+  const [generatedContent, setGeneratedContent] = useState(
+    open ? persistedContent : ''
+  );
+  const [error, setError] = useState<string | null>(
+    open ? persistedError : null
+  );
   const [progress, setProgress] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [additionalPrompts, setAdditionalPrompts] = useState('');
   const [selectedVolumeId, setSelectedVolumeId] = useState<string | undefined>();
   const [selectedChapterId, setSelectedChapterId] = useState<string | undefined>();
+  const [saving, setSaving] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stoppedRef = useRef(false);
 
-  // Reset on open
+  // 同步状态到模块级变量，关闭对话框后仍可保留
+  useEffect(() => {
+    persistedContent = generatedContent;
+    persistedStatus = status;
+    persistedError = error;
+  }, [generatedContent, status, error]);
+
+  // 初始化选择
   useEffect(() => {
     if (open) {
-      setStatus(GenerationStatus.IDLE);
-      setGeneratedContent('');
-      setError(null);
-      setProgress(0);
-      setElapsedTime(0);
-      setAdditionalPrompts('');
       setSelectedVolumeId(volumeList[0]?.id);
       setSelectedChapterId(chapterList[0]?.id);
     }
@@ -102,6 +117,7 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
   }, []);
 
   const startGeneration = useCallback(async () => {
+    stoppedRef.current = false;
     setStatus(GenerationStatus.GENERATING);
     setGeneratedContent('');
     setError(null);
@@ -127,8 +143,13 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
           setProgress((prev) => Math.min(prev + 3, 90));
         },
         onError: (errorMsg: string) => {
-          setError(errorMsg);
-          setStatus(GenerationStatus.ERROR);
+          if (stoppedRef.current) {
+            // 用户主动停止：保留已有内容，回到 IDLE 状态
+            setStatus(GenerationStatus.IDLE);
+          } else {
+            setError(errorMsg);
+            setStatus(GenerationStatus.ERROR);
+          }
           if (timerRef.current) clearInterval(timerRef.current);
         },
         onComplete: () => {
@@ -138,23 +159,51 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
         },
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : '生成失败');
-      setStatus(GenerationStatus.ERROR);
+      if (!stoppedRef.current) {
+        setError(err instanceof Error ? err.message : '生成失败');
+        setStatus(GenerationStatus.ERROR);
+      }
       if (timerRef.current) clearInterval(timerRef.current);
     }
   }, [outlineType, novelTitle, referenceInfo, additionalPrompts]);
+
+  const handleStopGeneration = useCallback(async () => {
+    stoppedRef.current = true;
+    if (timerRef.current) clearInterval(timerRef.current);
+    await aiApi.stopGenerate();
+  }, []);
 
   const handleAccept = async () => {
     let targetId: string | undefined;
     if (outlineType === 'volume') targetId = selectedVolumeId;
     if (outlineType === 'chapter') targetId = selectedChapterId;
-    await onSave(generatedContent, outlineType, targetId);
-    handleClose();
+    setSaving(true);
+    try {
+      await onSave(generatedContent, outlineType, targetId);
+      persistedContent = '';
+      persistedStatus = GenerationStatus.IDLE;
+      persistedError = null;
+      handleClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '保存失败');
+      setSaving(false);
+    }
   };
 
   const handleClose = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     onClose();
+  };
+
+  const handleStartNew = () => {
+    persistedContent = '';
+    persistedStatus = GenerationStatus.IDLE;
+    persistedError = null;
+    setGeneratedContent('');
+    setStatus(GenerationStatus.IDLE);
+    setError(null);
+    setProgress(0);
+    setElapsedTime(0);
   };
 
   const targetLabel = outlineType === 'volume'
@@ -169,6 +218,7 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
       onCancel={handleClose}
       width={700}
       footer={null}
+      destroyOnClose={false}
       className="ai-outline-dialog"
       title={
         <Space>
@@ -214,7 +264,7 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
       )}
 
       {/* Additional prompts (only before generation) */}
-      {status === GenerationStatus.IDLE && (
+      {status === GenerationStatus.IDLE && !generatedContent && (
         <div style={{ marginBottom: 16 }}>
           <Text strong>额外要求（可选）：</Text>
           <TextArea
@@ -277,7 +327,7 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
       {/* Actions */}
       <div className="dialog-footer-actions">
         <Space>
-          {status === GenerationStatus.IDLE && (
+          {status === GenerationStatus.IDLE && !generatedContent && (
             <>
               <Button onClick={handleClose}>取消</Button>
               <Button type="primary" icon={<RobotOutlined />} onClick={startGeneration}>
@@ -285,8 +335,26 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
               </Button>
             </>
           )}
+          {status === GenerationStatus.IDLE && generatedContent && (
+            <>
+              <Button icon={<ReloadOutlined />} onClick={handleStartNew}>
+                重新生成
+              </Button>
+              <Button icon={<CloseOutlined />} onClick={handleClose}>
+                放弃
+              </Button>
+              <Button type="primary" icon={<CheckOutlined />} onClick={handleAccept} loading={saving}>
+                保存大纲
+              </Button>
+            </>
+          )}
           {status === GenerationStatus.GENERATING && (
-            <Button onClick={handleClose}>取消</Button>
+            <>
+              <Button icon={<StopOutlined />} onClick={handleStopGeneration} danger>
+                停止生成
+              </Button>
+              <Button onClick={handleClose}>关闭窗口</Button>
+            </>
           )}
           {status === GenerationStatus.ERROR && (
             <>
@@ -298,13 +366,13 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
           )}
           {status === GenerationStatus.COMPLETED && (
             <>
-              <Button icon={<ReloadOutlined />} onClick={() => { setStatus(GenerationStatus.IDLE); setGeneratedContent(''); }}>
+              <Button icon={<ReloadOutlined />} onClick={handleStartNew}>
                 重新生成
               </Button>
               <Button icon={<CloseOutlined />} onClick={handleClose}>
                 放弃
               </Button>
-              <Button type="primary" icon={<CheckOutlined />} onClick={handleAccept}>
+              <Button type="primary" icon={<CheckOutlined />} onClick={handleAccept} loading={saving}>
                 保存大纲
               </Button>
             </>

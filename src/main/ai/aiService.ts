@@ -301,6 +301,13 @@ export class AIService {
   }
 
   /**
+   * 终止当前正在进行的流式生成
+   */
+  abort(): void {
+    this.adapter?.abortStream();
+  }
+
+  /**
    * 检查是否已初始化
    */
   isInitialized(): boolean {

@@ -193,7 +193,7 @@ const ChapterEditPage: React.FC = () => {
 
   // Manual save (includes title)
   const handleManualSave = async () => {
-    if (!novelId || !chapterId || chapterId === 'new') return;
+    if (!novelId || !chapterId || chapterId === 'new' || isSaving) return;
     try {
       if (title !== currentChapter?.title) {
         await updateChapterTitle(chapterId, title);

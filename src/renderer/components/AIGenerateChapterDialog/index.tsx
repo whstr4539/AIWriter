@@ -32,6 +32,7 @@ import {
   CloseOutlined,
   EditOutlined,
   ExperimentOutlined,
+  StopOutlined,
 } from '@ant-design/icons';
 import { aiApi, AIStreamChunk } from '../../api/ipc';
 import { PromptTemplate, WritingStyle, ChapterLength } from '../../utils/promptTemplates';
@@ -56,6 +57,12 @@ interface TokenUsage {
   totalTokens: number;
 }
 
+// 模块级变量：保留对话框关闭时的生成状态
+let chapterPersistedContent = '';
+let chapterPersistedTitle = '';
+let chapterPersistedStatus: GenerationStatus = GenerationStatus.IDLE;
+let chapterPersistedError: string | null = null;
+
 interface AIGenerateChapterDialogProps {
   open: boolean;
   novelTitle?: string;
@@ -72,10 +79,18 @@ const AIGenerateChapterDialog: React.FC<AIGenerateChapterDialogProps> = ({
   onAccept,
 }) => {
   const [form] = Form.useForm();
-  const [status, setStatus] = useState<GenerationStatus>(GenerationStatus.IDLE);
-  const [generatedContent, setGeneratedContent] = useState('');
-  const [generatedTitle, setGeneratedTitle] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<GenerationStatus>(
+    open ? chapterPersistedStatus : GenerationStatus.IDLE
+  );
+  const [generatedContent, setGeneratedContent] = useState(
+    open ? chapterPersistedContent : ''
+  );
+  const [generatedTitle, setGeneratedTitle] = useState(
+    open ? chapterPersistedTitle : ''
+  );
+  const [error, setError] = useState<string | null>(
+    open ? chapterPersistedError : null
+  );
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
   const [progress, setProgress] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -83,6 +98,23 @@ const AIGenerateChapterDialog: React.FC<AIGenerateChapterDialogProps> = ({
 
   // Refs
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const stoppedRef = React.useRef(false);
+
+  // 同步状态到模块级变量
+  useEffect(() => {
+    chapterPersistedContent = generatedContent;
+    chapterPersistedTitle = generatedTitle;
+    chapterPersistedStatus = status;
+    chapterPersistedError = error;
+  }, [generatedContent, generatedTitle, status, error]);
+
+  // 清理持久化状态
+  const clearPersistedState = () => {
+    chapterPersistedContent = '';
+    chapterPersistedTitle = '';
+    chapterPersistedStatus = GenerationStatus.IDLE;
+    chapterPersistedError = null;
+  };
 
   // 写作风格选项
   const writingStyles: { value: WritingStyle; label: string; description: string }[] = [
@@ -141,6 +173,7 @@ const AIGenerateChapterDialog: React.FC<AIGenerateChapterDialogProps> = ({
     try {
       const values = await form.validateFields();
       
+      stoppedRef.current = false;
       setStatus(GenerationStatus.GENERATING);
       setGeneratedContent('');
       setGeneratedTitle('');
@@ -193,8 +226,12 @@ const AIGenerateChapterDialog: React.FC<AIGenerateChapterDialogProps> = ({
           }
         },
         onError: (errorMsg: string) => {
-          setError(errorMsg);
-          setStatus(GenerationStatus.ERROR);
+          if (stoppedRef.current) {
+            setStatus(GenerationStatus.IDLE);
+          } else {
+            setError(errorMsg);
+            setStatus(GenerationStatus.ERROR);
+          }
           if (timerRef.current) {
             clearInterval(timerRef.current);
           }
@@ -214,16 +251,24 @@ const AIGenerateChapterDialog: React.FC<AIGenerateChapterDialogProps> = ({
       });
     } catch (err) {
       if (err instanceof Error && err.message.includes('validateFields')) {
-        // 表单验证失败，不更改状态
         return;
       }
-      setError(err instanceof Error ? err.message : '生成失败，请重试');
-      setStatus(GenerationStatus.ERROR);
+      if (!stoppedRef.current) {
+        setError(err instanceof Error ? err.message : '生成失败，请重试');
+        setStatus(GenerationStatus.ERROR);
+      }
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     }
   }, [form, novelTitle, generatedTitle]);
+
+  // 停止生成
+  const handleStopGeneration = useCallback(async () => {
+    stoppedRef.current = true;
+    if (timerRef.current) clearInterval(timerRef.current);
+    await aiApi.stopGenerate();
+  }, []);
 
   // 重新生成
   const handleRegenerate = () => {
@@ -236,11 +281,13 @@ const AIGenerateChapterDialog: React.FC<AIGenerateChapterDialogProps> = ({
     const values = form.getFieldsValue();
     const finalTitle = generatedTitle || values.title || `新章节 ${new Date().toLocaleDateString()}`;
     onAccept(generatedContent, finalTitle);
+    clearPersistedState();
     handleClose();
   };
 
   // 拒绝生成内容
   const handleReject = () => {
+    clearPersistedState();
     handleClose();
   };
 
@@ -249,12 +296,6 @@ const AIGenerateChapterDialog: React.FC<AIGenerateChapterDialogProps> = ({
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
-    setStatus(GenerationStatus.IDLE);
-    setGeneratedContent('');
-    setGeneratedTitle('');
-    setError(null);
-    setProgress(0);
-    setElapsedTime(0);
     setActiveTab('basic');
     form.resetFields();
     onClose();
@@ -502,6 +543,7 @@ const AIGenerateChapterDialog: React.FC<AIGenerateChapterDialogProps> = ({
       onCancel={handleClose}
       width={900}
       footer={null}
+      destroyOnClose={false}
       className="ai-generate-chapter-dialog"
       title={
         <Space>
@@ -573,7 +615,12 @@ const AIGenerateChapterDialog: React.FC<AIGenerateChapterDialogProps> = ({
           )}
 
           {status === GenerationStatus.GENERATING && (
-            <Button onClick={handleClose}>取消</Button>
+            <>
+              <Button icon={<StopOutlined />} onClick={handleStopGeneration} danger>
+                停止生成
+              </Button>
+              <Button onClick={handleClose}>关闭窗口</Button>
+            </>
           )}
 
           {status === GenerationStatus.ERROR && (

@@ -78,6 +78,7 @@ const IPC_CHANNELS = {
   AI: {
     GENERATE: 'ai:generate',
     STREAM_GENERATE: 'ai:streamGenerate',
+    ABORT: 'ai:abort',
     TEST_CONNECTION: 'ai:testConnection',
     GET_MODELS: 'ai:getModels',
     GET_PROVIDERS: 'ai:getProviders',
@@ -476,6 +477,13 @@ export const aiApi = {
       cleanup();
       throw error;
     }
+  },
+
+  /**
+   * 终止当前正在进行的流式生成
+   */
+  stopGenerate: (): Promise<{ success: boolean; error?: string }> => {
+    return ipcRenderer.invoke(IPC_CHANNELS.AI.ABORT);
   },
 
   testConnection: (settings?: AISettings): Promise<AITestResult> => {

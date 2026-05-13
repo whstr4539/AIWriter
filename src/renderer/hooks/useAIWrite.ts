@@ -78,6 +78,7 @@ export function useAIWrite({ editor, novelTitle, chapterTitle }: UseAIWriteOptio
         },
         onComplete: () => {
           streamingRef.current = false;
+          setIsStreaming(false);
         },
       });
     } catch (error) {

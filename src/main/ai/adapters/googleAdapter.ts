@@ -300,8 +300,33 @@ export class GoogleAdapter extends BaseAdapter {
 
     return new Promise((resolve, reject) => {
       const https = require('https');
+      let completed = false;
+      // Gemini 流式返回的是累积内容，需要记录已处理的长度做 diff
+      let previousContentLength = 0;
 
       const req = https.request(options, (res: any) => {
+        this.activeStreamRequest = req;
+        this.activeStreamResponse = res;
+        const statusCode = res.statusCode || 0;
+
+        if (statusCode < 200 || statusCode >= 300) {
+          let errorBody = '';
+          res.on('data', (chunk: Buffer) => {
+            errorBody += chunk.toString();
+          });
+          res.on('end', () => {
+            const error = this.parseErrorResponse(errorBody, statusCode);
+            callbacks.onError(error);
+            reject(error);
+          });
+          res.on('error', () => {
+            const error = this.createError('stream_error', '流式响应错误', 'network', true);
+            callbacks.onError(error);
+            reject(error);
+          });
+          return;
+        }
+
         let buffer = '';
 
         res.on('data', (chunk: Buffer) => {
@@ -316,10 +341,19 @@ export class GoogleAdapter extends BaseAdapter {
             try {
               const chunk = this.parseStreamLine(trimmed);
               if (chunk) {
-                callbacks.onChunk(chunk);
+                // Gemini 返回累积内容，只取增量部分
+                const delta = chunk.content.slice(previousContentLength);
+                previousContentLength = chunk.content.length;
+
+                if (delta) {
+                  callbacks.onChunk({ content: delta });
+                }
                 if (chunk.finishReason) {
-                  callbacks.onComplete();
-                  resolve();
+                  if (!completed) {
+                    completed = true;
+                    callbacks.onComplete();
+                    resolve();
+                  }
                   return;
                 }
               }
@@ -330,24 +364,38 @@ export class GoogleAdapter extends BaseAdapter {
         });
 
         res.on('end', () => {
-          callbacks.onComplete();
-          resolve();
+          this.activeStreamRequest = null;
+          this.activeStreamResponse = null;
+          if (!completed) {
+            completed = true;
+            callbacks.onComplete();
+            resolve();
+          }
         });
 
         res.on('error', (error: Error) => {
-          const aiError = this.createError('stream_error', error.message, 'network', true);
-          callbacks.onError(aiError);
-          reject(aiError);
+          this.activeStreamRequest = null;
+          this.activeStreamResponse = null;
+          if (!completed) {
+            completed = true;
+            const aiError = this.createError('stream_error', error.message, 'network', true);
+            callbacks.onError(aiError);
+            reject(aiError);
+          }
         });
       });
 
       req.on('error', (error: Error) => {
+        this.activeStreamRequest = null;
+        this.activeStreamResponse = null;
         const aiError = this.createError('network_error', error.message, 'network', true);
         callbacks.onError(aiError);
         reject(aiError);
       });
 
       req.on('timeout', () => {
+        this.activeStreamRequest = null;
+        this.activeStreamResponse = null;
         req.destroy();
         const aiError = this.createError('timeout', '请求超时', 'timeout', true);
         callbacks.onError(aiError);

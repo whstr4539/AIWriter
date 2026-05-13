@@ -1,6 +1,6 @@
 /**
  * AI创作对话框组件
- * 显示AI生成进度、流式输出内容，提供接受/拒绝/重新生成按钮
+ * 显示AI生成进度、流式输出内容，提供接受/拒绝/停止/重新生成按钮
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -25,6 +25,7 @@ import {
   ThunderboltOutlined,
   ClockCircleOutlined,
   FileTextOutlined,
+  StopOutlined,
 } from '@ant-design/icons';
 import { aiApi, AIStreamChunk } from '../../api/ipc';
 import { AIOperationType, PromptTemplate } from '../../utils/promptTemplates';
@@ -60,6 +61,12 @@ interface TokenUsage {
   totalTokens: number;
 }
 
+// 模块级变量：保留对话框关闭时的生成状态
+let dialogPersistedContent = '';
+let dialogPersistedStatus: GenerationStatus = GenerationStatus.IDLE;
+let dialogPersistedError: string | null = null;
+let dialogPersistedTokenUsage: TokenUsage | null = null;
+
 const AIDialog: React.FC<AIDialogProps> = ({
   open,
   operation,
@@ -72,10 +79,18 @@ const AIDialog: React.FC<AIDialogProps> = ({
   onClose,
 }) => {
   // 状态
-  const [status, setStatus] = useState<GenerationStatus>(GenerationStatus.IDLE);
-  const [generatedContent, setGeneratedContent] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
+  const [status, setStatus] = useState<GenerationStatus>(
+    open ? dialogPersistedStatus : GenerationStatus.IDLE
+  );
+  const [generatedContent, setGeneratedContent] = useState(
+    open ? dialogPersistedContent : ''
+  );
+  const [error, setError] = useState<string | null>(
+    open ? dialogPersistedError : null
+  );
+  const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(
+    open ? dialogPersistedTokenUsage : null
+  );
   const [progress, setProgress] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -84,6 +99,15 @@ const AIDialog: React.FC<AIDialogProps> = ({
   // Refs
   const contentRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const stoppedRef = useRef(false);
+
+  // 同步状态到模块级变量
+  useEffect(() => {
+    dialogPersistedContent = generatedContent;
+    dialogPersistedStatus = status;
+    dialogPersistedError = error;
+    dialogPersistedTokenUsage = tokenUsage;
+  }, [generatedContent, status, error, tokenUsage]);
 
   // 获取操作显示信息
   const getOperationInfo = useCallback(() => {
@@ -124,11 +148,18 @@ const AIDialog: React.FC<AIDialogProps> = ({
 
   // 计算预估token数
   const estimateTokens = useCallback((text: string) => {
-    // 简单估算：中文字符 + 英文单词
-    const chineseChars = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+    const chineseChars = (text.match(/[一-龥]/g) || []).length;
     const englishWords = (text.match(/[a-zA-Z]+/g) || []).length;
     return Math.ceil((chineseChars + englishWords) * 1.5);
   }, []);
+
+  // 清理持久化状态
+  const clearPersistedState = () => {
+    dialogPersistedContent = '';
+    dialogPersistedStatus = GenerationStatus.IDLE;
+    dialogPersistedError = null;
+    dialogPersistedTokenUsage = null;
+  };
 
   // 开始生成
   const startGeneration = useCallback(async () => {
@@ -138,6 +169,7 @@ const AIDialog: React.FC<AIDialogProps> = ({
       return;
     }
 
+    stoppedRef.current = false;
     setStatus(GenerationStatus.GENERATING);
     setGeneratedContent('');
     setError(null);
@@ -147,7 +179,6 @@ const AIDialog: React.FC<AIDialogProps> = ({
     setElapsedTime(0);
     setEstimatedTokens(estimateTokens(selectedText));
 
-    // 启动计时器
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
@@ -156,7 +187,6 @@ const AIDialog: React.FC<AIDialogProps> = ({
     }, 1000);
 
     try {
-      // 构建提示词
       const prompt = PromptTemplate.build(operation, {
         selectedText,
         contextText,
@@ -164,13 +194,11 @@ const AIDialog: React.FC<AIDialogProps> = ({
         novelTitle,
       });
 
-      // 流式生成
       await aiApi.streamGenerate(prompt, {
         onChunk: (chunk: AIStreamChunk) => {
           setGeneratedContent((prev) => prev + chunk.content);
           setProgress((prev) => Math.min(prev + 5, 90));
 
-          // 更新token使用信息
           if (chunk.usage) {
             setTokenUsage({
               promptTokens: chunk.usage.promptTokens || 0,
@@ -180,8 +208,12 @@ const AIDialog: React.FC<AIDialogProps> = ({
           }
         },
         onError: (errorMsg: string) => {
-          setError(errorMsg);
-          setStatus(GenerationStatus.ERROR);
+          if (stoppedRef.current) {
+            setStatus(GenerationStatus.IDLE);
+          } else {
+            setError(errorMsg);
+            setStatus(GenerationStatus.ERROR);
+          }
           if (timerRef.current) {
             clearInterval(timerRef.current);
           }
@@ -195,13 +227,22 @@ const AIDialog: React.FC<AIDialogProps> = ({
         },
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : '生成失败，请重试');
-      setStatus(GenerationStatus.ERROR);
+      if (!stoppedRef.current) {
+        setError(err instanceof Error ? err.message : '生成失败，请重试');
+        setStatus(GenerationStatus.ERROR);
+      }
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     }
   }, [operation, selectedText, contextText, chapterTitle, novelTitle, estimateTokens, startTime]);
+
+  // 停止生成
+  const handleStopGeneration = useCallback(async () => {
+    stoppedRef.current = true;
+    if (timerRef.current) clearInterval(timerRef.current);
+    await aiApi.stopGenerate();
+  }, []);
 
   // 重新生成
   const handleRegenerate = () => {
@@ -211,12 +252,14 @@ const AIDialog: React.FC<AIDialogProps> = ({
   // 接受生成内容
   const handleAccept = () => {
     onAccept(generatedContent);
+    clearPersistedState();
     onClose();
   };
 
   // 拒绝生成内容
   const handleReject = () => {
     onReject();
+    clearPersistedState();
     onClose();
   };
 
@@ -235,12 +278,12 @@ const AIDialog: React.FC<AIDialogProps> = ({
     }
   }, [generatedContent, status]);
 
-  // 打开对话框时自动开始生成
+  // 打开对话框时自动开始生成（仅在没有任何生成状态时）
   useEffect(() => {
-    if (open && status === GenerationStatus.IDLE) {
+    if (open && status === GenerationStatus.IDLE && !generatedContent) {
       startGeneration();
     }
-  }, [open, status, startGeneration]);
+  }, [open, status, generatedContent, startGeneration]);
 
   // 清理
   useEffect(() => {
@@ -269,6 +312,7 @@ const AIDialog: React.FC<AIDialogProps> = ({
       onCancel={handleClose}
       width={720}
       footer={null}
+      destroyOnClose={false}
       className="ai-dialog"
       title={
         <Space>
@@ -391,6 +435,27 @@ const AIDialog: React.FC<AIDialogProps> = ({
         {/* 操作按钮 */}
         <div className="dialog-actions">
           <Space>
+            {status === GenerationStatus.IDLE && generatedContent && (
+              <>
+                <Button icon={<ReloadOutlined />} onClick={handleRegenerate}>
+                  重新生成
+                </Button>
+                <Button icon={<CloseOutlined />} onClick={handleReject}>
+                  拒绝
+                </Button>
+                <Button type="primary" icon={<CheckOutlined />} onClick={handleAccept}>
+                  接受
+                </Button>
+              </>
+            )}
+            {status === GenerationStatus.GENERATING && (
+              <>
+                <Button icon={<StopOutlined />} onClick={handleStopGeneration} danger>
+                  停止生成
+                </Button>
+                <Button onClick={handleClose}>关闭窗口</Button>
+              </>
+            )}
             {status === GenerationStatus.ERROR && (
               <Button
                 icon={<ReloadOutlined />}
@@ -402,29 +467,16 @@ const AIDialog: React.FC<AIDialogProps> = ({
             )}
             {status === GenerationStatus.COMPLETED && (
               <>
-                <Button
-                  icon={<ReloadOutlined />}
-                  onClick={handleRegenerate}
-                >
+                <Button icon={<ReloadOutlined />} onClick={handleRegenerate}>
                   重新生成
                 </Button>
-                <Button
-                  icon={<CloseOutlined />}
-                  onClick={handleReject}
-                >
+                <Button icon={<CloseOutlined />} onClick={handleReject}>
                   拒绝
                 </Button>
-                <Button
-                  type="primary"
-                  icon={<CheckOutlined />}
-                  onClick={handleAccept}
-                >
+                <Button type="primary" icon={<CheckOutlined />} onClick={handleAccept}>
                   接受
                 </Button>
               </>
-            )}
-            {status === GenerationStatus.GENERATING && (
-              <Button onClick={handleClose}>取消</Button>
             )}
           </Space>
         </div>

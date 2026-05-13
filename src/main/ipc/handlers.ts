@@ -103,6 +103,7 @@ export const IPC_CHANNELS = {
   AI: {
     GENERATE: 'ai:generate',
     STREAM_GENERATE: 'ai:streamGenerate',
+    ABORT: 'ai:abort',
     TEST_CONNECTION: 'ai:testConnection',
     GET_MODELS: 'ai:getModels',
     GET_PROVIDERS: 'ai:getProviders',
@@ -230,7 +231,12 @@ export async function registerIpcHandlers(): Promise<void> {
   ipcMain.handle(
     IPC_CHANNELS.SETTINGS.SAVE_AI,
     async (_event, settings: AISettings) => {
-      return await saveAISettings(settings);
+      const result = await saveAISettings(settings);
+      // 同步更新 aiService 单例，确保后续生成使用最新配置
+      if (result.success) {
+        aiService.updateSettings(settings);
+      }
+      return result;
     }
   );
 
@@ -414,6 +420,22 @@ export async function registerIpcHandlers(): Promise<void> {
     }
   );
 
+  // 终止流式生成
+  ipcMain.handle(
+    IPC_CHANNELS.AI.ABORT,
+    async () => {
+      try {
+        aiService.abort();
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : '终止生成失败',
+        };
+      }
+    }
+  );
+
   // 测试AI连接
   ipcMain.handle(
     IPC_CHANNELS.AI.TEST_CONNECTION,
@@ -564,6 +586,7 @@ export function unregisterIpcHandlers(): void {
   // AI
   ipcMain.removeHandler(IPC_CHANNELS.AI.GENERATE);
   ipcMain.removeHandler(IPC_CHANNELS.AI.STREAM_GENERATE);
+  ipcMain.removeHandler(IPC_CHANNELS.AI.ABORT);
   ipcMain.removeHandler(IPC_CHANNELS.AI.TEST_CONNECTION);
   ipcMain.removeHandler(IPC_CHANNELS.AI.GET_MODELS);
   ipcMain.removeHandler(IPC_CHANNELS.AI.GET_PROVIDERS);

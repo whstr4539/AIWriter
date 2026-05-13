@@ -28,6 +28,10 @@ export abstract class BaseAdapter implements IAIAdapter {
   protected abstract readonly defaultBaseUrl: string;
   protected abstract readonly apiVersion: string;
 
+  // 用于终止流式请求
+  protected activeStreamRequest: http.ClientRequest | null = null;
+  protected activeStreamResponse: http.IncomingMessage | null = null;
+
   /**
    * 初始化适配器
    */
@@ -159,8 +163,31 @@ export abstract class BaseAdapter implements IAIAdapter {
 
     return new Promise((resolve, reject) => {
       const client = url.protocol === 'https:' ? https : http;
+      let completed = false;
 
       const req = client.request(options, (res) => {
+        this.activeStreamResponse = res;
+        const statusCode = res.statusCode || 0;
+
+        // Check for HTTP error status before processing as SSE
+        if (statusCode < 200 || statusCode >= 300) {
+          let errorBody = '';
+          res.on('data', (chunk) => {
+            errorBody += chunk.toString();
+          });
+          res.on('end', () => {
+            const error = this.parseErrorResponse(errorBody, statusCode);
+            callbacks.onError(error);
+            reject(error);
+          });
+          res.on('error', () => {
+            const error = this.createError('stream_error', '流式响应错误', 'network', true);
+            callbacks.onError(error);
+            reject(error);
+          });
+          return;
+        }
+
         let buffer = '';
 
         res.on('data', (chunk) => {
@@ -173,8 +200,11 @@ export abstract class BaseAdapter implements IAIAdapter {
             if (trimmed.startsWith('data: ')) {
               const data = trimmed.slice(6);
               if (data === '[DONE]') {
-                callbacks.onComplete();
-                resolve();
+                if (!completed) {
+                  completed = true;
+                  callbacks.onComplete();
+                  resolve();
+                }
                 return;
               }
 
@@ -191,24 +221,38 @@ export abstract class BaseAdapter implements IAIAdapter {
         });
 
         res.on('end', () => {
-          callbacks.onComplete();
-          resolve();
+          this.activeStreamRequest = null;
+          this.activeStreamResponse = null;
+          if (!completed) {
+            completed = true;
+            callbacks.onComplete();
+            resolve();
+          }
         });
 
         res.on('error', (error) => {
-          const aiError = this.createError('stream_error', error.message, 'network', true);
-          callbacks.onError(aiError);
-          reject(aiError);
+          this.activeStreamRequest = null;
+          this.activeStreamResponse = null;
+          if (!completed) {
+            completed = true;
+            const aiError = this.createError('stream_error', error.message, 'network', true);
+            callbacks.onError(aiError);
+            reject(aiError);
+          }
         });
       });
 
       req.on('error', (error) => {
+        this.activeStreamRequest = null;
+        this.activeStreamResponse = null;
         const aiError = this.createError('network_error', error.message, 'network', true);
         callbacks.onError(aiError);
         reject(aiError);
       });
 
       req.on('timeout', () => {
+        this.activeStreamRequest = null;
+        this.activeStreamResponse = null;
         req.destroy();
         const aiError = this.createError('timeout', '请求超时', 'timeout', true);
         callbacks.onError(aiError);
@@ -217,7 +261,23 @@ export abstract class BaseAdapter implements IAIAdapter {
 
       req.write(postData);
       req.end();
+
+      this.activeStreamRequest = req;
     });
+  }
+
+  /**
+   * 终止当前正在进行的流式生成
+   */
+  abortStream(): void {
+    if (this.activeStreamRequest) {
+      this.activeStreamRequest.destroy();
+      this.activeStreamRequest = null;
+    }
+    if (this.activeStreamResponse) {
+      this.activeStreamResponse.destroy();
+      this.activeStreamResponse = null;
+    }
   }
 
   /**
