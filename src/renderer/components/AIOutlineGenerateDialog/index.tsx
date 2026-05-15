@@ -136,8 +136,10 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
         referenceInfo,
         additionalPrompts: additionalPrompts || undefined,
       });
+      const systemPrompt = PromptTemplate.getSystemPrompt('generateOutline');
 
       await aiApi.streamGenerate(prompt, {
+        systemPrompt,
         onChunk: (chunk: AIStreamChunk) => {
           setGeneratedContent((prev) => prev + chunk.content);
           setProgress((prev) => Math.min(prev + 3, 90));

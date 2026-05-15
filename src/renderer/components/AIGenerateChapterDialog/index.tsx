@@ -201,9 +201,11 @@ const AIGenerateChapterDialog: React.FC<AIGenerateChapterDialogProps> = ({
         characters: values.characters,
         keyPoints: values.keyPoints,
       });
+      const systemPrompt = PromptTemplate.getSystemPrompt('generateChapter');
 
       // 流式生成
       await aiApi.streamGenerate(prompt, {
+        systemPrompt,
         onChunk: (chunk: AIStreamChunk) => {
           setGeneratedContent((prev) => prev + chunk.content);
           setProgress((prev) => Math.min(prev + 2, 95));

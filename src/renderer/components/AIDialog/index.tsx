@@ -193,8 +193,10 @@ const AIDialog: React.FC<AIDialogProps> = ({
         chapterTitle,
         novelTitle,
       });
+      const systemPrompt = PromptTemplate.getSystemPrompt(operation);
 
       await aiApi.streamGenerate(prompt, {
+        systemPrompt,
         onChunk: (chunk: AIStreamChunk) => {
           setGeneratedContent((prev) => prev + chunk.content);
           setProgress((prev) => Math.min(prev + 5, 90));

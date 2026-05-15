@@ -41,6 +41,7 @@ export function useAIWrite({ editor, novelTitle, chapterTitle }: UseAIWriteOptio
       chapterTitle,
       novelTitle,
     });
+    const systemPrompt = PromptTemplate.getSystemPrompt(operation);
 
     const insertPos = operation === 'continue' ? to : from;
 
@@ -50,6 +51,7 @@ export function useAIWrite({ editor, novelTitle, chapterTitle }: UseAIWriteOptio
 
     try {
       await aiApi.streamGenerate(prompt, {
+        systemPrompt,
         onChunk: (chunk: AIStreamChunk) => {
           if (!chunk.content || !editor) return;
 

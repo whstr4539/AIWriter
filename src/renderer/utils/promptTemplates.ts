@@ -303,7 +303,14 @@ export class PromptTemplate {
   }
 
   /**
-   * 构建提示词
+   * 获取系统提示词
+   */
+  static getSystemPrompt(type: AIOperationType): string {
+    return this.getTemplate(type).systemPrompt;
+  }
+
+  /**
+   * 构建提示词（仅用户提示词部分，不含系统提示词）
    */
   static build(type: AIOperationType, params: PromptTemplateParams): string {
     const template = this.getTemplate(type);
@@ -315,8 +322,7 @@ export class PromptTemplate {
     prompt = prompt.replace(/{{chapterTitle}}/g, params.chapterTitle || '');
     prompt = prompt.replace(/{{novelTitle}}/g, params.novelTitle || '');
 
-    // 组合系统提示词和用户提示词
-    return `${template.systemPrompt}\n\n${prompt}`;
+    return prompt;
   }
 
   /**
@@ -335,8 +341,7 @@ export class PromptTemplate {
     prompt = prompt.replace(/{{keyPoints}}/g, params.keyPoints || '按照大纲自然展开');
     prompt = prompt.replace(/{{additionalPrompts}}/g, params.additionalPrompts || '无');
 
-    // 组合系统提示词和用户提示词
-    return `${template.systemPrompt}\n\n${prompt}`;
+    return prompt;
   }
 
   /**
@@ -356,7 +361,7 @@ export class PromptTemplate {
     prompt = prompt.replace(/{{referenceInfo}}/g, params.referenceInfo || '无');
     prompt = prompt.replace(/{{additionalPrompts}}/g, params.additionalPrompts || '无');
 
-    return `${template.systemPrompt}\n\n${prompt}`;
+    return prompt;
   }
 
   /**

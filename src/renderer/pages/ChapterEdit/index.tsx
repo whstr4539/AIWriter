@@ -436,7 +436,8 @@ const ChapterEditPage: React.FC = () => {
         {viewMode === 'content' ? (
           <div className={`editor-body ${isFocusMode ? 'focus-mode' : ''}`}>
             <RichTextEditor
-              content={content}
+              key={chapterId}
+              content={currentChapter?.content || content}
               onChange={handleContentChange}
               onWordCountChange={handleWordCountChange}
               placeholder="开始创作..."
