@@ -96,13 +96,17 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
     persistedError = error;
   }, [generatedContent, status, error]);
 
-  // 初始化选择
+  // 初始化选择（volumeList/chapterList 可能在弹窗打开后才加载完成）
   useEffect(() => {
     if (open) {
-      setSelectedVolumeId(volumeList[0]?.id);
-      setSelectedChapterId(chapterList[0]?.id);
+      if (!selectedVolumeId) {
+        setSelectedVolumeId(volumeList[0]?.id);
+      }
+      if (!selectedChapterId) {
+        setSelectedChapterId(chapterList[0]?.id);
+      }
     }
-  }, [open]);
+  }, [open, volumeList, chapterList]);
 
   // Cleanup timer
   useEffect(() => {
@@ -243,6 +247,9 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
           {targetLabel && <Tag color="blue" style={{ marginLeft: 8 }}>{targetLabel}</Tag>}
         </div>
       )}
+      {outlineType === 'volume' && volumeList.length === 0 && (
+        <Alert message="当前作品还没有卷，请先在作品设置中创建卷" type="warning" showIcon style={{ marginBottom: 16 }} />
+      )}
       {outlineType === 'chapter' && chapterList.length > 0 && (
         <div style={{ marginBottom: 16 }}>
           <Text strong>目标章节：</Text>
@@ -254,6 +261,9 @@ const AIOutlineGenerateDialog: React.FC<AIOutlineGenerateDialogProps> = ({
           />
           {targetLabel && <Tag color="blue" style={{ marginLeft: 8 }}>{targetLabel}</Tag>}
         </div>
+      )}
+      {outlineType === 'chapter' && chapterList.length === 0 && (
+        <Alert message="当前作品还没有章节，请先创建章节" type="warning" showIcon style={{ marginBottom: 16 }} />
       )}
 
       {/* Reference info */}

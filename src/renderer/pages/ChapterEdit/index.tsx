@@ -164,12 +164,18 @@ const ChapterEditPage: React.FC = () => {
   // AI outline save callback
   const handleOutlineSave = async (outline: string, type: 'novel' | 'volume' | 'chapter', targetId?: string) => {
     if (!novelId) return;
+    if (type === 'volume' || type === 'chapter') {
+      if (!targetId) {
+        message.error(`请先选择目标${type === 'volume' ? '卷' : '章节'}`);
+        return;
+      }
+    }
     if (type === 'novel') {
       await updateNovel(novelId, { outline });
-    } else if (type === 'volume' && targetId) {
-      await updateVolume(targetId, { outline });
-    } else if (type === 'chapter' && targetId) {
-      await updateChapter(targetId, { outline });
+    } else if (type === 'volume') {
+      await updateVolume(targetId!, { outline });
+    } else if (type === 'chapter') {
+      await updateChapter(targetId!, { outline });
     }
     // Refresh data
     await loadNovel(novelId);
