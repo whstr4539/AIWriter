@@ -6,10 +6,11 @@ AI Writer 是一款基于 Electron 的 AI 辅助小说创作桌面应用，专�
 
 ### 核心功能
 - **AI 智能创作** - 续写、改写、扩写、润色，支持流式输出与中途停止
+- **知识库（RAG）** - 导入文档或小说作为知识库，AI 生成时自动检索相关内容，增强创作一致性
 - **章节管理** - 直观的小说、卷、章节组织结构，支持拖拽排序
 - **富文本编辑器** - 基于 TipTap 的专业写作编辑器
 - **大纲系统** - 总纲 / 卷纲 / 章纲三级大纲，支持 AI 辅助生成
-- **多 AI 服务支持** - 支持 OpenAI、Anthropic、Google、阿里云、百度、字节跳动、豆包、智谱等 API，以及 OpenAI 兼容的自定义 API
+- **多 AI 服务支持** - 支持 OpenAI、Anthropic、Google、阿里云、百度等 API，以及 OpenAI 兼容的自定义 API（可用于字节跳动豆包、智谱、DeepSeek 等）
 - **提示词管理** - 可自定义各 AI 操作类型的系统提示词和用户提示词模板
 
 ### 编辑器功能
@@ -26,6 +27,7 @@ AI Writer 是一款基于 Electron 的 AI 辅助小说创作桌面应用，专�
 - AI 生成章节
 - 流式输出，支持 Tab 接受 / Esc 拒绝
 - 支持中途停止生成
+- 知识库检索增强生成（RAG）：导入参考资料后，AI 创作时自动关联相关内容
 
 ## 截图
 
@@ -68,16 +70,21 @@ npm run dev
 6. 点击保存
 
 ### 支持的 AI 服务
-- **OpenAI** — 兼容 OpenAI Chat Completions API
-- **Anthropic** — 兼容 Anthropic Messages API
-- **Google** — 兼容 Gemini API
-- **阿里云** — 兼容 DashScope API（通义千问）
-- **百度** — 兼容千帆 API（文心一言）
-- **字节跳动** — 兼容豆包 API
-- **智谱 AI** — 兼容智谱 GLM API
-- **自定义** — 兼容任意 OpenAI 格式的 API 端点
+- **OpenAI** — GPT / o 系列模型（Chat Completions API）
+- **Anthropic** — Claude 系列模型（Messages API）
+- **Google** — Gemini 系列模型（Gemini API）
+- **阿里云** — 通义千问系列模型（DashScope API）
+- **百度** — 文心一言系列模型（千帆 API）
+- **自定义** — 兼容任意 OpenAI 格式的 API 端点（可用于字节跳动豆包、智谱 GLM、DeepSeek 等）
 
 ### 基本操作
+
+#### 知识库管理
+1. 进入知识库页面（侧边栏"知识库"）
+2. 导入参考文档（支持 .txt / .md 文件），或从已有小说作品导入章节作为参考
+3. 系统自动对文档进行分块并生成向量嵌入
+4. 在小说设置中关联知识库文档
+5. AI 生成时会自动检索相关知识库内容并注入上下文
 
 #### 创建小说
 1. 点击首页的"新建小说"按钮
